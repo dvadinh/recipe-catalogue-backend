@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+  <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
+  <property name="LOG_PATH" value="logs" />
+  <property name="LOG_FILE" value="${LOG_PATH}/recipe-catalogue.log"/>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>[%highlight(%level)] [%cyan(%d{yyyy-MM-dd HH:mm:ss.SSS})] [%green(%thread)] [%magenta(%C).%yellow(%M\(\)) at %blue(line %L)]: %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <springProfile name="local">
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+      <file>${LOG_FILE}</file>
+      <append>false</append>
+      <encoder>
+        <pattern>[%level] [%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%C%M\(\) aa line %L]: %msg%n</pattern>
+      </encoder>
+    </appender>
+
+    <root level="info">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
+    </root>
+
+  </springProfile>
+
+  <springProfile name="!local">
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <file>${LOG_FILE}</file>
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <fileNamePattern>${LOG_PATH}/recipe-catalogue-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+        <timeBasedFileNamingAndTriggeringPolicy
+          class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+          <maxFileSize>10MB</maxFileSize>
+        </timeBasedFileNamingAndTriggeringPolicy>
+        <maxHistory>30</maxHistory>
+        <totalSizeCap>1GB</totalSizeCap>
+      </rollingPolicy>
+      <encoder>
+        <pattern>[%level] [%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%C%M\(\) aa line %L]: %msg%n</pattern>
+      </encoder>
+    </appender>
+
+    <root level="info">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
+    </root>
+
+  </springProfile>
+
+</configuration>
