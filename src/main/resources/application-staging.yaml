@@ -1,14 +1,6 @@
 server:
   servlet:
     context-path: /
-    session:
-      cookie:
-        name: SESSION
-        same-site: lax
-        path: /
-        http-only: true
-        secure: true
-        domain: api.recipecatalogue.com
   port: ${SERVER_PORT:8081}
   forward-headers-strategy: framework
   address: 127.0.0.1
@@ -39,6 +31,18 @@ flyway:
   baseline-version:
   target-version:
 
+jwt:
+  access-token-time-to-live: 900
+  refresh-token-time-to-live: 604800
+
+aws:
+  s3:
+    region: ${AWS_REGION}
+    bucket-name: ${AWS_S3_BUCKET_NAME}
+  credentials:
+    access-key: ${AWS_ACCESS_KEY_ID}
+    secret-key: ${AWS_SECRET_ACCESS_KEY}
+
 oauth2:
   client:
     registration:
@@ -50,14 +54,14 @@ oauth2:
           - email
           - profile
         authorization-grant-type: authorization_code
-        redirect-uri: https://${server.servlet.session.cookie.domain}/auth/oauth2/code/google
+        redirect-uri: https://api.recipecatalogue.com/auth/oauth2/code/google
       github:
         client-id: ${GITHUB_OAUTH2_CLIENT_ID}
         client-secret: ${GITHUB_OAUTH2_CLIENT_SECRET}
         scope:
           - read:user
         authorization-grant-type: authorization_code
-        redirect-uri: https://${server.servlet.session.cookie.domain}/auth/oauth2/code/github
+        redirect-uri: https://api.recipecatalogue.com/auth/oauth2/code/github
     provider:
       google:
         issuer-uri: https://accounts.google.com

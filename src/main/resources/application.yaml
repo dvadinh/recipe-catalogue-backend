@@ -25,6 +25,10 @@ spring:
   flyway:
     enabled: false
 
+jwt:
+  private-key-file: classpath:jwt-private-key.pem
+  public-key-file: classpath:jwt-public-key.pem
+
 springdoc:
   api-docs:
     enabled: true
