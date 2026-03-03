@@ -61,7 +61,8 @@ public enum AuthenticationErrorDictionary implements ErrorDictionaryDescriptor {
 
   UNEXPECTED_AUTHENTICATION_ERROR_001(HttpStatus.INTERNAL_SERVER_ERROR, "Only basic authentication sign-up/in requests are handled here."),
 
-  INVALID_OAUTH2_REVOCATION_REQUEST_001(HttpStatus.BAD_GATEWAY, "Cannot revoke OAuth2 access token from the provider. Please try again later."),
+  INVALID_OAUTH2_REVOCATION_REQUEST_001(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot find the OAuth2 provider. Please try again later."),
+  INVALID_OAUTH2_REVOCATION_REQUEST_002(HttpStatus.BAD_GATEWAY, "Cannot revoke OAuth2 access token from the provider. Please try again later."),
 
   ;
 

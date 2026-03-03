@@ -4,6 +4,7 @@ import com.dvaults.recipecatalogue.common.dtos.requests.PatchRequestOperation;
 import com.dvaults.recipecatalogue.common.errors.exceptions.BadGatewayException;
 import com.dvaults.recipecatalogue.common.errors.exceptions.ConflictException;
 import com.dvaults.recipecatalogue.common.errors.exceptions.CookieAwareException;
+import com.dvaults.recipecatalogue.common.errors.exceptions.InternalServerErrorException;
 import com.dvaults.recipecatalogue.common.errors.exceptions.RequestValidationException;
 import com.dvaults.recipecatalogue.common.errors.exceptions.ResourceNotFoundException;
 import com.dvaults.recipecatalogue.common.jwt.UserJwt;
@@ -49,6 +50,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -378,6 +380,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       Authentication oAuth2Principal
   ) {
 
+    log.info("oAuth2AuthorizedClient: {}", oAuth2AuthorizedClient.toString());
+    log.info("oAuth2Principal: {}", oAuth2Principal.toString());
+
     Optional<LinkedOAuth2Account> linkedOAuth2AccountOptional = linkedOAuth2AccountRepository.findByIdFetchUser(
         new LinkedOAuth2AccountId(
             oAuth2AuthorizedClient.getClientRegistration().getRegistrationId(),
@@ -426,6 +431,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       OAuth2AuthorizedClient oAuth2AuthorizedClient,
       Authentication oAuth2Principal
   ) {
+
+    log.info("oAuth2AuthorizedClient: {}", oAuth2AuthorizedClient.toString());
+    log.info("oAuth2Principal: {}", oAuth2Principal.toString());
+
     linkedOAuth2AccountRepository.save(
         linkedOAuth2AccountMapper.updateLinkedOAuth2Account(
             linkedOAuth2AccountRepository.findById(
@@ -486,6 +495,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       Authentication oAuth2Principal
   ) {
 
+    log.info("oAuth2AuthorizedClient: {}", oAuth2AuthorizedClient.toString());
+    log.info("oAuth2Principal: {}", oAuth2Principal.toString());
+
     Optional<LinkedOAuth2Account> linkedOAuth2AccountOptional = linkedOAuth2AccountRepository.findByIdFetchUser(
         new LinkedOAuth2AccountId(
             oAuth2AuthorizedClient.getClientRegistration().getRegistrationId(),
@@ -545,11 +557,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       throw new ConflictException(AuthenticationErrorDictionary.OAUTH2_UNLINK_ONLY_AUTHENTICATION_METHOD_001);
     }
 
-    // if (OAuth2AuthenticationConfigs.GITHUB_REGISTRATION_ID.equalsIgnoreCase(clientRegistrationId)) {
-    //   revokeGithubAccessToken(linkedOAuth2Account);
-    // } else if (OAuth2AuthenticationConfigs.GOOGLE_REGISTRATION_ID.equalsIgnoreCase(clientRegistrationId)) {
-    //   revokeGoogleAccessToken(linkedOAuth2Account);
-    // }
+    if (OAuth2AuthenticationConfigs.GITHUB_REGISTRATION_ID.equalsIgnoreCase(clientRegistrationId)) {
+      revokeGithubAccessToken(linkedOAuth2Account);
+    } else if (OAuth2AuthenticationConfigs.GOOGLE_REGISTRATION_ID.equalsIgnoreCase(clientRegistrationId)) {
+      revokeGoogleTokens(linkedOAuth2Account);
+    }
 
     userAccount.getLinkedOAuth2Accounts().remove(linkedOAuth2Account);
     userRepository.save(userAccount);
@@ -577,13 +589,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   }
 
-  // TODO: add try catch for request error
+  // https://docs.github.com/en/rest/apps/oauth-applications?apiVersion=2022-11-28#delete-an-app-authorization
   private void revokeGithubAccessToken(LinkedOAuth2Account linkedOAuth2Account) {
 
     ClientRegistration clientRegistration =
         clientRegistrationRepository.findByRegistrationId(OAuth2AuthenticationConfigs.GITHUB_REGISTRATION_ID);
 
+    if (clientRegistration == null) {
+      throw new InternalServerErrorException(AuthenticationErrorDictionary.INVALID_OAUTH2_REVOCATION_REQUEST_001);
+    }
+
     try {
+
       ResponseEntity<Void> response = restClient.method(HttpMethod.DELETE)
           .uri(String.format("https://api.github.com/applications/%s/grant", clientRegistration.getClientId()))
           .headers(httpHeaders -> {
@@ -591,7 +608,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             httpHeaders.add("Accept", "application/vnd.github+json");
             httpHeaders.add("X-GitHub-Api-Version", "2022-11-28");
           })
-          .body(Map.of("token", linkedOAuth2Account.getAccessTokenValue()))
+          .body(
+              Map.of(
+                  "access_token",
+                  linkedOAuth2Account.getAccessTokenValue()))
           .retrieve()
           .toBodilessEntity();
 
@@ -602,7 +622,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             response.getStatusCode(),
             response.getBody()
         );
-        throw new BadGatewayException(AuthenticationErrorDictionary.INVALID_OAUTH2_REVOCATION_REQUEST_001);
+        throw new BadGatewayException(AuthenticationErrorDictionary.INVALID_OAUTH2_REVOCATION_REQUEST_002);
       }
     } catch (Exception exception) {
       log.error("Failed to revoke Github authorization for {}: {}",
@@ -610,49 +630,112 @@ public class AuthenticationServiceImpl implements AuthenticationService {
           exception.getMessage(),
           exception
       );
-      throw new BadGatewayException(AuthenticationErrorDictionary.INVALID_OAUTH2_REVOCATION_REQUEST_001);
+      throw new BadGatewayException(AuthenticationErrorDictionary.INVALID_OAUTH2_REVOCATION_REQUEST_002);
     }
 
   }
 
-  // TODO: add try catch for request error
-  private void revokeGoogleAccessToken(LinkedOAuth2Account linkedOAuth2Account) {
+  // https://developers.google.com/identity/account-linking/unlinking
+  // https://myaccount.google.com/u/3/connections
+  private void revokeGoogleTokens(LinkedOAuth2Account linkedOAuth2Account) {
+
+    ClientRegistration clientRegistration =
+        clientRegistrationRepository.findByRegistrationId(OAuth2AuthenticationConfigs.GOOGLE_REGISTRATION_ID);
+
+    if (clientRegistration == null) {
+      throw new InternalServerErrorException(AuthenticationErrorDictionary.INVALID_OAUTH2_REVOCATION_REQUEST_001);
+    }
 
     try {
-      ResponseEntity<Void> response = restClient.post()
-          .uri(UriComponentsBuilder.fromUriString("https://oauth2.googleapis.com/revoke")
-              .queryParam(
-                  "token",
-                  linkedOAuth2Account.getAccessTokenValue() == null
-                      ? linkedOAuth2Account.getRefreshTokenValue()
-                      : linkedOAuth2Account.getAccessTokenValue())
-              .build()
-              .toUri())
-          .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-          .body(Map.of(
-              "access_token",
-              linkedOAuth2Account.getRefreshTokenValue() == null
-                  ? linkedOAuth2Account.getAccessTokenValue()
-                  : linkedOAuth2Account.getRefreshTokenValue()))
-          .retrieve()
-          .toBodilessEntity();
 
-      if (!response.getStatusCode().is2xxSuccessful()) {
-        log.error(
-            "Error while revoking Google token for {}: {} - {}",
-            linkedOAuth2Account.getId().getPrincipalName(),
-            response.getStatusCode(),
-            response.getBody()
+      if (linkedOAuth2Account.getAccessTokenValue() != null) {
+
+        LinkedMultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add(
+            "client_id",
+            clientRegistration.getClientId()
         );
-        throw new BadGatewayException(AuthenticationErrorDictionary.INVALID_OAUTH2_REVOCATION_REQUEST_001);
+        formData.add(
+            "client_secret",
+            clientRegistration.getClientSecret()
+        );
+        formData.add(
+            "token",
+            linkedOAuth2Account.getAccessTokenValue()
+        );
+        formData.add(
+            "token_type_hint",
+            "access_token"
+        );
+
+        ResponseEntity<Void> accessTokenResponse = restClient.post()
+            .uri(UriComponentsBuilder.fromUriString("https://oauth2.googleapis.com/revoke")
+                .build()
+                .toUri())
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+            .body(formData)
+            .retrieve()
+            .toBodilessEntity();
+
+        if (!accessTokenResponse.getStatusCode().is2xxSuccessful()) {
+          log.error(
+              "Error while revoking Google access token for {}: {} - {}",
+              linkedOAuth2Account.getId().getPrincipalName(),
+              accessTokenResponse.getStatusCode(),
+              accessTokenResponse.getBody()
+          );
+          throw new BadGatewayException(AuthenticationErrorDictionary.INVALID_OAUTH2_REVOCATION_REQUEST_002);
+        }
+
       }
+
+      if (linkedOAuth2Account.getRefreshTokenValue() != null) {
+
+        LinkedMultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add(
+            "client_id",
+            clientRegistration.getClientId()
+        );
+        formData.add(
+            "client_secret",
+            clientRegistration.getClientSecret()
+        );
+        formData.add(
+            "token",
+            linkedOAuth2Account.getRefreshTokenValue()
+        );
+        formData.add(
+            "token_type_hint",
+            "refresh_token"
+        );
+
+        ResponseEntity<Void> refreshTokenResponse = restClient.post()
+            .uri(UriComponentsBuilder.fromUriString("https://oauth2.googleapis.com/revoke")
+                .build()
+                .toUri())
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+            .body(formData)
+            .retrieve()
+            .toBodilessEntity();
+
+        if (!refreshTokenResponse.getStatusCode().is2xxSuccessful()) {
+          log.error(
+              "Error while revoking Google refresh token for {}: {} - {}",
+              linkedOAuth2Account.getId().getPrincipalName(),
+              refreshTokenResponse.getStatusCode(),
+              refreshTokenResponse.getBody()
+          );
+          throw new BadGatewayException(AuthenticationErrorDictionary.INVALID_OAUTH2_REVOCATION_REQUEST_002);
+        }
+      }
+
     } catch (Exception exception) {
       log.error("Failed to revoke Google authorization for {}: {}",
           linkedOAuth2Account.getId().getPrincipalName(),
           exception.getMessage(),
           exception
       );
-      throw new BadGatewayException(AuthenticationErrorDictionary.INVALID_OAUTH2_REVOCATION_REQUEST_001);
+      throw new BadGatewayException(AuthenticationErrorDictionary.INVALID_OAUTH2_REVOCATION_REQUEST_002);
     }
 
   }

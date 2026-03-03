@@ -132,6 +132,14 @@ public abstract class LinkedOAuth2AccountMapper {
 
   }
 
+  @Named("mapToLinkedOAuth2AccountId")
+  protected LinkedOAuth2AccountId mapToLinkedOAuth2AccountId(OAuth2AuthorizedClient oAuth2AuthorizedClient) {
+    return new LinkedOAuth2AccountId(
+        oAuth2AuthorizedClient.getClientRegistration().getRegistrationId(),
+        oAuth2AuthorizedClient.getPrincipalName()
+    );
+  }
+
   @Named("mapToAccessTokenType")
   protected String mapToAccessTokenType(String accessTokenType) {
 
@@ -169,7 +177,7 @@ public abstract class LinkedOAuth2AccountMapper {
   }
 
   @Named("toLinkedOAuth2Account")
-  @Mapping(target = "id", source = "oAuth2AuthorizedClient")
+  @Mapping(target = "id", source = "oAuth2AuthorizedClient", qualifiedByName = "mapToLinkedOAuth2AccountId")
   @Mapping(target = "accessTokenType", source = "oAuth2AuthorizedClient.accessToken.tokenType.value", qualifiedByName = "mapToAccessTokenType")
   @Mapping(target = "accessTokenValue", source = "oAuth2AuthorizedClient.accessToken.tokenValue")
   @Mapping(target = "accessTokenIssuedAt", source = "oAuth2AuthorizedClient.accessToken.issuedAt")
