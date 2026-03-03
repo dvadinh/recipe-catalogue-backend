@@ -15,8 +15,6 @@ public enum MediaErrorDictionary implements ErrorDictionaryDescriptor {
 
   ;
 
-  public static final String MEDIA_ERROR_MESSAGE_001 = "Media must be provided and not empty.";
-
   private final HttpStatus status;
   private final Object details;
 

@@ -1,21 +1,26 @@
 package com.dvaults.recipecatalogue.modules.core.services.api.implementation;
 
 import com.dvaults.recipecatalogue.common.dtos.PutMutation;
+import com.dvaults.recipecatalogue.common.dtos.requests.PatchRequestOperation;
 import com.dvaults.recipecatalogue.common.dtos.responses.MediaResponse;
 import com.dvaults.recipecatalogue.common.mappers.CommonMapper;
 import com.dvaults.recipecatalogue.configs.AwsS3Configs;
 import com.dvaults.recipecatalogue.modules.auth.models.User;
 import com.dvaults.recipecatalogue.modules.core.dtos.recipe.PutRecipeContext;
+import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.PatchRecipeAccessLevelRequest;
 import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.PostRecipeRequest;
-import com.dvaults.recipecatalogue.modules.core.dtos.recipe.responses.RecipeResponse;
+import com.dvaults.recipecatalogue.modules.core.dtos.recipe.responses.RecipeDetailsResponse;
+import com.dvaults.recipecatalogue.modules.core.dtos.recipe.responses.RecipeSummaryResponse;
 import com.dvaults.recipecatalogue.modules.core.dtos.section.PutSection;
 import com.dvaults.recipecatalogue.modules.core.dtos.section.PutSectionContext;
 import com.dvaults.recipecatalogue.modules.core.dtos.step.PutStep;
 import com.dvaults.recipecatalogue.modules.core.dtos.step.PutStepContext;
 import com.dvaults.recipecatalogue.modules.core.mappers.RecipeMapper;
 import com.dvaults.recipecatalogue.modules.core.models.Recipe;
+import com.dvaults.recipecatalogue.modules.core.models.RecipeAccessLevel;
 import com.dvaults.recipecatalogue.modules.core.models.Section;
 import com.dvaults.recipecatalogue.modules.core.models.Step;
+import com.dvaults.recipecatalogue.modules.core.repositories.BeneficiaryRepository;
 import com.dvaults.recipecatalogue.modules.core.repositories.RecipeRepository;
 import com.dvaults.recipecatalogue.modules.core.repositories.SectionRepository;
 import com.dvaults.recipecatalogue.modules.core.repositories.StepRepository;
@@ -48,12 +53,13 @@ public class RecipeServiceImpl implements RecipeService {
   private final RecipeRepository recipeRepository;
   private final StepRepository stepRepository;
   private final SectionRepository sectionRepository;
+  private final BeneficiaryRepository beneficiaryRepository;
 
   private final RecipeMapper recipeMapper;
   private final CommonMapper commonMapper;
 
   @Override
-  public List<RecipeResponse> findAllByUserId(long userId) {
+  public List<RecipeDetailsResponse> findAllByUserId(long userId) {
 
     List<Recipe> recipes = recipeRepository.findAllByUserIdFetchOwnerAndSections(userId);
 
@@ -65,10 +71,14 @@ public class RecipeServiceImpl implements RecipeService {
         ));
 
     stepRepository.findAllBySectionIdsIn(new ArrayList<>(stepsBySectionId.keySet()))
-        .forEach(step -> stepsBySectionId.get(step.getSection().getId()).add(step));
+        .forEach(step -> {
+          if (stepsBySectionId.containsKey(step.getSection().getId())) {
+            stepsBySectionId.get(step.getSection().getId()).add(step);
+          }
+        });
 
     return recipes.stream()
-        .map(recipe -> recipeMapper.toRecipeResponse(
+        .map(recipe -> recipeMapper.toRecipeDetailsResponse(
             recipe,
             recipe.getSections()
                 .stream()
@@ -80,7 +90,7 @@ public class RecipeServiceImpl implements RecipeService {
   }
 
   @Override
-  public RecipeResponse findByRecipe(
+  public RecipeDetailsResponse findByRecipe(
       Recipe recipe,
       UserPrincipal principal
   ) {
@@ -99,7 +109,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .toList())
         .forEach(step -> stepsBySection.get(step.getSection()).add(step));
 
-    return recipeMapper.toRecipeResponse(
+    return recipeMapper.toRecipeDetailsResponse(
         recipe,
         stepsBySection
     );
@@ -108,11 +118,11 @@ public class RecipeServiceImpl implements RecipeService {
 
   @Override
   @Transactional
-  public RecipeResponse create(
+  public RecipeDetailsResponse create(
       PostRecipeRequest screenedRequest,
       User principalUser
   ) {
-    return recipeMapper.toRecipeResponse(
+    return recipeMapper.toRecipeDetailsResponse(
         recipeRepository.save(
             Recipe.builder()
                 .owner(principalUser)
@@ -125,7 +135,7 @@ public class RecipeServiceImpl implements RecipeService {
 
   @Override
   @Transactional
-  public RecipeResponse updateByRecipeAndPutRecipeItems(
+  public RecipeDetailsResponse updateByRecipeAndPutRecipeItems(
       Recipe recipe,
       PutRecipeContext putRecipeContext,
       UserPrincipal principal
@@ -287,9 +297,36 @@ public class RecipeServiceImpl implements RecipeService {
       mediaService.deleteMedia(mediaS3KeysToBeDeleted);
     }
 
-    return recipeMapper.toRecipeResponse(
+    return recipeMapper.toRecipeDetailsResponse(
         recipeRepository.save(recipe),
         stepsBySection
+    );
+
+  }
+
+  @Override
+  @Transactional
+  public RecipeSummaryResponse updateAccessLevelByRecipe(
+      Recipe recipe,
+      PatchRecipeAccessLevelRequest screenedRequest
+  ) {
+
+    boolean mutated = false;
+
+    if (screenedRequest.accessLevelOperation() == PatchRequestOperation.UPDATE
+        && screenedRequest.accessLevel() != recipe.getAccessLevel()
+    ) {
+      if (screenedRequest.accessLevel() == RecipeAccessLevel.PUBLIC) {
+        beneficiaryRepository.deleteAll(recipe.getBeneficiaries());
+      }
+      recipe.setAccessLevel(screenedRequest.accessLevel());
+      mutated = true;
+    }
+
+    return recipeMapper.toRecipeSummaryResponse(
+        mutated
+            ? recipeRepository.save(recipe)
+            : recipe
     );
 
   }

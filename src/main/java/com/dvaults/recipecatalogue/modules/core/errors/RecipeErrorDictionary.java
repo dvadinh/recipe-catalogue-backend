@@ -13,6 +13,8 @@ public enum RecipeErrorDictionary implements ErrorDictionaryDescriptor {
 
   INVALID_RECIPE_DETAILS_001(HttpStatus.BAD_REQUEST, "Invalid recipe creation details."),
   INVALID_RECIPE_DETAILS_002(HttpStatus.BAD_REQUEST, "Invalid recipe update details."),
+  INVALID_RECIPE_DETAILS_003(HttpStatus.BAD_REQUEST, "Invalid recipe access level update details."),
+  INVALID_RECIPE_DETAILS_004(HttpStatus.BAD_REQUEST, "Invalid recipe deletion details."),
 
   RECIPE_ACCESS_DENIED_001(HttpStatus.FORBIDDEN, "Only admins can access this resource."),
   RECIPE_ACCESS_DENIED_002(HttpStatus.FORBIDDEN, "Only admins and the owner can access this resource."),
@@ -23,9 +25,13 @@ public enum RecipeErrorDictionary implements ErrorDictionaryDescriptor {
 
   public static final String NAME_ERROR_MESSAGE_001 = "Name must be provided and not empty.";
 
-  public static final String NAME_OPERATION_ERROR_MESSAGE_001 = "Name cannot be cleared.";
-
   public static final String DESCRIPTION_ERROR_MESSAGE_001 = "Description must be provided and not empty.";
+
+  public static final String ACCESS_LEVEL_ERROR_MESSAGE_001 = "Access level must be provided when operation is UPDATE.";
+
+  public static final String ACCESS_LEVEL_OPERATION_ERROR_MESSAGE_001 = "Access level cannot be cleared.";
+
+  public static final String RECIPE_IDS_ERROR_MESSAGE_001 = "Recipe ids must be positive integers.";
 
   private final HttpStatus status;
   private final Object details;

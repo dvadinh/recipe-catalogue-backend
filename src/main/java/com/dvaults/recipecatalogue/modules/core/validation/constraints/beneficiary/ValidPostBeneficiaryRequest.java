@@ -1,6 +1,6 @@
-package com.dvaults.recipecatalogue.modules.core.validation.constraints;
+package com.dvaults.recipecatalogue.modules.core.validation.constraints.beneficiary;
 
-import com.dvaults.recipecatalogue.modules.core.validation.validators.PostRecipeRequestValidator;
+import com.dvaults.recipecatalogue.modules.core.validation.validators.beneficiary.PostBeneficiaryRequestValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -13,10 +13,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = PostRecipeRequestValidator.class)
-public @interface ValidPostRecipeRequest {
+@Constraint(validatedBy = PostBeneficiaryRequestValidator.class)
+public @interface ValidPostBeneficiaryRequest {
 
-  String message() default "Invalid recipe creation request body";
+  String message() default "Invalid beneficiary creation request body";
 
   Class<?>[] groups() default {};
 

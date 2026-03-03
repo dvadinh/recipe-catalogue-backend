@@ -1,11 +1,11 @@
-package com.dvaults.recipecatalogue.modules.core.validation.validators;
+package com.dvaults.recipecatalogue.modules.core.validation.validators.recipe;
 
 import com.dvaults.recipecatalogue.common.errors.exceptions.RequestValidationException;
 import com.dvaults.recipecatalogue.common.utils.ValidationUtils;
 import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.PostRecipeRequest;
 import com.dvaults.recipecatalogue.modules.core.errors.RecipeErrorDictionary;
 import com.dvaults.recipecatalogue.modules.core.mappers.RecipeMapper;
-import com.dvaults.recipecatalogue.modules.core.validation.constraints.ValidPostRecipeRequest;
+import com.dvaults.recipecatalogue.modules.core.validation.constraints.recipe.ValidPostRecipeRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;

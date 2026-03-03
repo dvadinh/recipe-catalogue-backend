@@ -10,9 +10,11 @@ import com.dvaults.recipecatalogue.modules.auth.repositories.UserRepository;
 import com.dvaults.recipecatalogue.modules.core.dtos.recipe.PutRecipe;
 import com.dvaults.recipecatalogue.modules.core.dtos.recipe.PutRecipeContext;
 import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.DeleteRecipeRequest;
+import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.PatchRecipeAccessLevelRequest;
 import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.PostRecipeRequest;
 import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.PutRecipeRequest;
-import com.dvaults.recipecatalogue.modules.core.dtos.recipe.responses.RecipeResponse;
+import com.dvaults.recipecatalogue.modules.core.dtos.recipe.responses.RecipeDetailsResponse;
+import com.dvaults.recipecatalogue.modules.core.dtos.recipe.responses.RecipeSummaryResponse;
 import com.dvaults.recipecatalogue.modules.core.dtos.section.PutSection;
 import com.dvaults.recipecatalogue.modules.core.dtos.section.PutSectionContext;
 import com.dvaults.recipecatalogue.modules.core.dtos.section.requests.PutSectionRequest;
@@ -54,12 +56,12 @@ public class RecipeAuthorizationProxyServiceImpl implements RecipeAuthorizationP
   private final RecipeMapper recipeMapper;
 
   @Override
-  public List<RecipeResponse> findAll(UserPrincipal principal) {
+  public List<RecipeDetailsResponse> findAll(UserPrincipal principal) {
     return recipeService.findAllByUserId(principal.getId());
   }
 
   @Override
-  public RecipeResponse findById(
+  public RecipeDetailsResponse findById(
       UserPrincipal principal,
       long id
   ) {
@@ -71,7 +73,7 @@ public class RecipeAuthorizationProxyServiceImpl implements RecipeAuthorizationP
   }
 
   @Override
-  public RecipeResponse create(
+  public RecipeDetailsResponse create(
       UserPrincipal principal,
       PostRecipeRequest postRecipeRequest
   ) {
@@ -83,7 +85,7 @@ public class RecipeAuthorizationProxyServiceImpl implements RecipeAuthorizationP
   }
 
   @Override
-  public RecipeResponse updateById(
+  public RecipeDetailsResponse updateById(
       UserPrincipal principal,
       long id,
       PutRecipeRequest putRecipeRequest
@@ -163,6 +165,19 @@ public class RecipeAuthorizationProxyServiceImpl implements RecipeAuthorizationP
         principal
     );
 
+  }
+
+  @Override
+  public RecipeSummaryResponse updateAccessLevelById(
+      UserPrincipal principal,
+      long id,
+      PatchRecipeAccessLevelRequest patchRecipeAccessLevelRequest
+  ) {
+    return recipeService.updateAccessLevelByRecipe(
+        recipeRepository.findByIdFetchBeneficiaries(id)
+            .orElseThrow(() -> new ResourceNotFoundException(RecipeErrorDictionary.RECIPE_NOT_FOUND_001)),
+        recipeMapper.screenPatchRecipeAccessLevelRequest(patchRecipeAccessLevelRequest)
+    );
   }
 
   @Override

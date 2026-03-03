@@ -1,9 +1,9 @@
 package com.dvaults.recipecatalogue.modules.auth.controllers;
 
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUserRequest;
-import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserResponse;
+import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserDetailsResponse;
 import com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.specification.AuthenticationAuthorizationProxyService;
-import com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.specification.UserAuthenticationProxyService;
+import com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.specification.UserAuthorizationProxyService;
 import com.dvaults.recipecatalogue.modules.auth.validation.constraints.ValidPatchUserRequest;
 import com.dvaults.recipecatalogue.security.authentication.tokens.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,32 +31,32 @@ import java.util.concurrent.Callable;
 @RequiredArgsConstructor
 public class UserController {
 
-  private final UserAuthenticationProxyService userAuthenticationProxyService;
+  private final UserAuthorizationProxyService userAuthorizationProxyService;
   private final AuthenticationAuthorizationProxyService authenticationAuthorizationProxyService;
 
   @GetMapping(path = "/users")
-  public Callable<ResponseEntity<List<UserResponse>>> getAll(
+  public Callable<ResponseEntity<List<UserDetailsResponse>>> getAll(
       HttpServletRequest request,
       HttpServletResponse response,
       @AuthenticationPrincipal UserPrincipal principal
   ) {
     return () -> ResponseEntity.status(HttpStatus.OK)
-        .body(userAuthenticationProxyService.findAll());
+        .body(userAuthorizationProxyService.findAll());
   }
 
   @GetMapping(path = "/users/{userId}")
-  public Callable<ResponseEntity<UserResponse>> getById(
+  public Callable<ResponseEntity<UserDetailsResponse>> getById(
       HttpServletRequest request,
       HttpServletResponse response,
       @AuthenticationPrincipal UserPrincipal principal,
       @PathVariable Long userId
   ) {
     return () -> ResponseEntity.status(HttpStatus.OK)
-        .body(userAuthenticationProxyService.findById(userId));
+        .body(userAuthorizationProxyService.findById(userId));
   }
 
   @PatchMapping(path = "/users/{userId}")
-  public Callable<ResponseEntity<UserResponse>> patchById(
+  public Callable<ResponseEntity<UserDetailsResponse>> patchById(
       HttpServletRequest request,
       HttpServletResponse response,
       @AuthenticationPrincipal UserPrincipal principal,
@@ -65,7 +65,7 @@ public class UserController {
   ) {
     return () -> {
 
-      UserResponse userResponse = userAuthenticationProxyService.updateById(
+      UserDetailsResponse userDetailsResponse = userAuthorizationProxyService.updateById(
           userId,
           patchUserRequest
       );
@@ -76,8 +76,8 @@ public class UserController {
         response.addHeader(HttpHeaders.SET_COOKIE, jwtRevokingTokenCookies.getSecond().toString());
       }
 
-      return ResponseEntity.status(HttpStatus.CREATED)
-          .body(userResponse);
+      return ResponseEntity.status(HttpStatus.OK)
+          .body(userDetailsResponse);
 
     };
   }
@@ -91,7 +91,7 @@ public class UserController {
   ) {
     return () -> {
 
-      userAuthenticationProxyService.deleteById(userId);
+      userAuthorizationProxyService.deleteById(userId);
       if (principal.getId().equals(userId)) {
         Pair<ResponseCookie, ResponseCookie> jwtRevokingTokenCookies = authenticationAuthorizationProxyService.buildJwtRevokingTokens();
         response.addHeader(HttpHeaders.SET_COOKIE, jwtRevokingTokenCookies.getFirst().toString());

@@ -1,6 +1,6 @@
-package com.dvaults.recipecatalogue.modules.core.validation.constraints;
+package com.dvaults.recipecatalogue.modules.core.validation.constraints.recipe;
 
-import com.dvaults.recipecatalogue.modules.core.validation.validators.PutRecipeRequestValidator;
+import com.dvaults.recipecatalogue.modules.core.validation.validators.recipe.PutRecipeRequestValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 

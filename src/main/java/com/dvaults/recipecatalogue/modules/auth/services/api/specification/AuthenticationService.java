@@ -4,7 +4,7 @@ import com.dvaults.recipecatalogue.common.jwt.UserJwt;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUsernamePasswordRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PostUserRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.UsernamePasswordRequest;
-import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserResponse;
+import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserDetailsResponse;
 import com.dvaults.recipecatalogue.modules.auth.models.User;
 import com.dvaults.recipecatalogue.security.authentication.tokens.UserPrincipal;
 import jakarta.annotation.Nullable;
@@ -17,14 +17,14 @@ import java.util.UUID;
 
 public interface AuthenticationService {
 
-  UserResponse findUserByPrincipal(@Nullable UserPrincipal principal);
+  UserDetailsResponse findUserByPrincipal(@Nullable UserPrincipal principal);
 
   UserPrincipal toUserPrincipal(UserJwt principalJwt);
 
   void signUpByUsername(UsernamePasswordRequest usernamePasswordRequest);
 
   @PreAuthorize("@authenticationAuthorizationService.preAuthorizeCreate(principal)")
-  UserResponse create(PostUserRequest screenedRequest);
+  UserDetailsResponse create(PostUserRequest screenedRequest);
 
   @PreAuthorize("@authenticationAuthorizationService.preAuthorizeUpdateUsernamePassword(principal, #user)")
   Long updateUsernamePassword(

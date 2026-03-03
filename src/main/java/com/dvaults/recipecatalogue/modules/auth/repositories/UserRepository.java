@@ -30,4 +30,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
   )
   Optional<User> findByIdFetchLinkedOAuth2Accounts(long id);
 
+  @Query("SELECT u " +
+      "FROM users u " +
+      "WHERE u.id IN :ids "
+  )
+  List<User> findAllByIdsIn(List<Long> ids);
+
 }

@@ -1,8 +1,7 @@
-package com.dvaults.recipecatalogue.modules.core.validation.validators;
+package com.dvaults.recipecatalogue.modules.core.validation.validators.recipe;
 
 import com.dvaults.recipecatalogue.common.errors.exceptions.RequestValidationException;
 import com.dvaults.recipecatalogue.common.utils.ValidationUtils;
-import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.PostRecipeRequest;
 import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.PutRecipeRequest;
 import com.dvaults.recipecatalogue.modules.core.dtos.section.requests.PutSectionRequest;
 import com.dvaults.recipecatalogue.modules.core.dtos.step.requests.PutStepRequest;
@@ -10,13 +9,11 @@ import com.dvaults.recipecatalogue.modules.core.errors.RecipeErrorDictionary;
 import com.dvaults.recipecatalogue.modules.core.errors.SectionErrorDictionary;
 import com.dvaults.recipecatalogue.modules.core.errors.StepErrorDictionary;
 import com.dvaults.recipecatalogue.modules.core.mappers.RecipeMapper;
-import com.dvaults.recipecatalogue.modules.core.validation.constraints.ValidPostRecipeRequest;
-import com.dvaults.recipecatalogue.modules.core.validation.constraints.ValidPutRecipeRequest;
+import com.dvaults.recipecatalogue.modules.core.validation.constraints.recipe.ValidPutRecipeRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,9 +52,18 @@ public class PutRecipeRequestValidator implements ConstraintValidator<ValidPutRe
 
     for (PutSectionRequest putSectionRequest : screenedRequest.sections()) {
 
-      if (!StringUtils.hasText(putSectionRequest.title())
-          || !StringUtils.hasText(putSectionRequest.description())
-      ) {
+      if (putSectionRequest.id() != null && putSectionRequest.id() <= 0) {
+        isValid = false;
+        if (!errors.containsKey("sections.id")) {
+          ValidationUtils.constructErrorFromMessage(
+              errors,
+              "sections.id",
+              RecipeErrorDictionary.RECIPE_IDS_ERROR_MESSAGE_001
+          );
+        }
+      }
+
+      if (!StringUtils.hasText(putSectionRequest.title())) {
         isValid = false;
         if (!errors.containsKey("sections.title")) {
           ValidationUtils.constructErrorFromMessage(
@@ -66,6 +72,10 @@ public class PutRecipeRequestValidator implements ConstraintValidator<ValidPutRe
               SectionErrorDictionary.TITLE_ERROR_MESSAGE_001
           );
         }
+      }
+
+      if (!StringUtils.hasText(putSectionRequest.description())) {
+        isValid = false;
         if (!errors.containsKey("sections.description")) {
           ValidationUtils.constructErrorFromMessage(
               errors,
@@ -76,9 +86,19 @@ public class PutRecipeRequestValidator implements ConstraintValidator<ValidPutRe
       }
 
       for (PutStepRequest putStepRequest : putSectionRequest.steps()) {
-        if (!StringUtils.hasText(putStepRequest.title())
-            || !StringUtils.hasText(putStepRequest.description())
-        ) {
+
+        if (putStepRequest.id() != null && putStepRequest.id() <= 0) {
+          isValid = false;
+          if (!errors.containsKey("sections.steps.id")) {
+            ValidationUtils.constructErrorFromMessage(
+                errors,
+                "sections.steps.id",
+                RecipeErrorDictionary.RECIPE_IDS_ERROR_MESSAGE_001
+            );
+          }
+        }
+
+        if (!StringUtils.hasText(putStepRequest.title())) {
           isValid = false;
           if (!errors.containsKey("sections.steps.title")) {
             ValidationUtils.constructErrorFromMessage(
@@ -87,6 +107,10 @@ public class PutRecipeRequestValidator implements ConstraintValidator<ValidPutRe
                 StepErrorDictionary.TITLE_ERROR_MESSAGE_001
             );
           }
+        }
+
+        if (!StringUtils.hasText(putStepRequest.description())) {
+          isValid = false;
           if (!errors.containsKey("sections.steps.description")) {
             ValidationUtils.constructErrorFromMessage(
                 errors,
@@ -95,6 +119,7 @@ public class PutRecipeRequestValidator implements ConstraintValidator<ValidPutRe
             );
           }
         }
+
       }
 
     }

@@ -1,16 +1,16 @@
 package com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.specification;
 
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUserRequest;
-import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserResponse;
+import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserDetailsResponse;
 import java.util.List;
 
-public interface UserAuthenticationProxyService {
+public interface UserAuthorizationProxyService {
 
-  List<UserResponse> findAll();
+  List<UserDetailsResponse> findAll();
 
-  UserResponse findById(long id);
+  UserDetailsResponse findById(long id);
 
-  UserResponse updateById(
+  UserDetailsResponse updateById(
       long id,
       PatchUserRequest patchUserRequest
   );

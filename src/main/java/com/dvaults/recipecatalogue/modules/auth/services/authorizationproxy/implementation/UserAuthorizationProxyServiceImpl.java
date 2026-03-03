@@ -3,14 +3,14 @@ package com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.imp
 import com.dvaults.recipecatalogue.common.dtos.requests.PatchRequestOperation;
 import com.dvaults.recipecatalogue.common.errors.exceptions.ResourceNotFoundException;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUserRequest;
-import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserResponse;
+import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserDetailsResponse;
 import com.dvaults.recipecatalogue.modules.auth.errors.UserErrorDictionary;
 import com.dvaults.recipecatalogue.modules.auth.mappers.UserMapper;
 import com.dvaults.recipecatalogue.modules.auth.models.User;
 import com.dvaults.recipecatalogue.modules.auth.repositories.UserRepository;
 import com.dvaults.recipecatalogue.modules.auth.services.api.specification.AuthenticationService;
 import com.dvaults.recipecatalogue.modules.auth.services.api.specification.UserService;
-import com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.specification.UserAuthenticationProxyService;
+import com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.specification.UserAuthorizationProxyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserAuthenticationProxyServiceImpl implements UserAuthenticationProxyService {
+public class UserAuthorizationProxyServiceImpl implements UserAuthorizationProxyService {
 
   private final UserService userService;
   private final AuthenticationService authenticationService;
@@ -29,19 +29,19 @@ public class UserAuthenticationProxyServiceImpl implements UserAuthenticationPro
   private final UserMapper userMapper;
 
   @Override
-  public List<UserResponse> findAll() {
+  public List<UserDetailsResponse> findAll() {
     return userService.findAllByUsers(userRepository.findAll());
   }
 
   @Override
-  public UserResponse findById(long id) {
+  public UserDetailsResponse findById(long id) {
     return userRepository.findById(id)
         .map(userService::findByUser)
         .orElseThrow(() -> new ResourceNotFoundException(UserErrorDictionary.USER_NOT_FOUND_001));
   }
 
   @Override
-  public UserResponse updateById(
+  public UserDetailsResponse updateById(
       long id,
       PatchUserRequest patchUserRequest
   ) {
@@ -51,7 +51,7 @@ public class UserAuthenticationProxyServiceImpl implements UserAuthenticationPro
 
     PatchUserRequest screenedRequest = userMapper.screenPatchUserRequest(patchUserRequest);
 
-    Pair<UserResponse, Boolean> responsePair = userService.updateByUser(
+    Pair<UserDetailsResponse, Boolean> responsePair = userService.updateByUser(
         user,
         screenedRequest
     );

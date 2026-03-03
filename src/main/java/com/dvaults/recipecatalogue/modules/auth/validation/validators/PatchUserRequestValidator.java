@@ -65,7 +65,7 @@ public class PatchUserRequestValidator implements ConstraintValidator<ValidPatch
       isValid = false;
       ValidationUtils.constructErrorFromMessage(
           errors,
-          "typesOperation",
+          "typeOperation",
           UserErrorDictionary.TYPE_OPERATION_ERROR_MESSAGE_001
       );
     }

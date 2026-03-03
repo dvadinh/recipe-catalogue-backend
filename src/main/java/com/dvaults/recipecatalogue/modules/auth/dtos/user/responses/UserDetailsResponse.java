@@ -2,7 +2,7 @@ package com.dvaults.recipecatalogue.modules.auth.dtos.user.responses;
 
 import com.dvaults.recipecatalogue.modules.auth.models.Authority;
 
-public record UserResponse(
+public record UserDetailsResponse(
 
     Long id,
 

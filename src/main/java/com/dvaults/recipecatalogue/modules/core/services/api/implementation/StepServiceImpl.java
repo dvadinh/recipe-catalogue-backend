@@ -21,7 +21,9 @@ import java.util.List;
 public class StepServiceImpl implements StepService {
 
   private final MediaService mediaService;
+
   private final StepRepository stepRepository;
+
   private final CommonMapper commonMapper;
 
   @Override

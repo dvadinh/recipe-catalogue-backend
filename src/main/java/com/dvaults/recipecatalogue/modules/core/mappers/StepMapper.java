@@ -2,8 +2,6 @@ package com.dvaults.recipecatalogue.modules.core.mappers;
 
 import com.dvaults.recipecatalogue.common.dtos.responses.MediaResponse;
 import com.dvaults.recipecatalogue.common.mappers.CommonMapper;
-import com.dvaults.recipecatalogue.modules.auth.mappers.LinkedOAuth2AccountMapper;
-import com.dvaults.recipecatalogue.modules.core.dtos.section.requests.PutSectionRequest;
 import com.dvaults.recipecatalogue.modules.core.dtos.step.requests.PutStepRequest;
 import com.dvaults.recipecatalogue.modules.core.dtos.step.responses.StepResponse;
 import com.dvaults.recipecatalogue.modules.core.models.Step;
@@ -18,8 +16,6 @@ import org.mapstruct.Named;
 import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-
 import java.util.List;
 
 @Mapper(

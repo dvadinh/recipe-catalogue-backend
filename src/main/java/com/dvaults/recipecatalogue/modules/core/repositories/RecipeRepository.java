@@ -34,4 +34,11 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
   )
   List<Recipe> findAllByIdsIn(List<Long> ids);
 
+  @Query("SELECT r " +
+      "FROM recipes r " +
+      "LEFT JOIN FETCH r.beneficiaries b " +
+      "WHERE r.id = :id "
+  )
+  Optional<Recipe> findByIdFetchBeneficiaries(long id);
+
 }

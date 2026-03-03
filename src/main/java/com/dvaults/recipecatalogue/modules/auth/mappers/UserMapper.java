@@ -4,7 +4,8 @@ import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUserRequ
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUsernamePasswordRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PostUserRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.UsernamePasswordRequest;
-import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserResponse;
+import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserDetailsResponse;
+import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserSummaryResponse;
 import com.dvaults.recipecatalogue.modules.auth.models.User;
 import org.mapstruct.Builder;
 import org.mapstruct.CollectionMappingStrategy;
@@ -25,12 +26,15 @@ import java.util.List;
 )
 public abstract class UserMapper {
 
-  @Named("toUserResponse")
-  public abstract UserResponse toUserResponse(User user);
+  @Named("toUserDetailsResponse")
+  public abstract UserDetailsResponse toUserDetailsResponse(User user);
+
+  @Named("toUserSummaryResponse")
+  public abstract UserSummaryResponse toUserSummaryResponse(User user);
 
   @Named("toUserResponseList")
-  @IterableMapping(qualifiedByName = "toUserResponse")
-  public abstract List<UserResponse> toUserResponseList(List<User> userList);
+  @IterableMapping(qualifiedByName = "toUserDetailsResponse")
+  public abstract List<UserDetailsResponse> toUserDetailsResponseList(List<User> userList);
 
   @Named("screenPostUserRequest")
   @Mapping(

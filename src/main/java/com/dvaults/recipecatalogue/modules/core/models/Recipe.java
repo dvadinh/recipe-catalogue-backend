@@ -19,8 +19,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.type.SqlTypes;
+
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,6 +48,9 @@ public class Recipe {
 
   @Column(columnDefinition = "TEXT")
   private String name;
+
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  private RecipeAccessLevel accessLevel;
 
   @Column(columnDefinition = "TEXT")
   private String description;

@@ -2,10 +2,13 @@ package com.dvaults.recipecatalogue.modules.core.mappers;
 
 import com.dvaults.recipecatalogue.common.dtos.responses.MediaResponse;
 import com.dvaults.recipecatalogue.common.mappers.CommonMapper;
-import com.dvaults.recipecatalogue.modules.auth.mappers.LinkedOAuth2AccountMapper;
+import com.dvaults.recipecatalogue.modules.auth.mappers.UserMapper;
+import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.DeleteRecipeRequest;
+import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.PatchRecipeAccessLevelRequest;
 import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.PostRecipeRequest;
 import com.dvaults.recipecatalogue.modules.core.dtos.recipe.requests.PutRecipeRequest;
-import com.dvaults.recipecatalogue.modules.core.dtos.recipe.responses.RecipeResponse;
+import com.dvaults.recipecatalogue.modules.core.dtos.recipe.responses.RecipeDetailsResponse;
+import com.dvaults.recipecatalogue.modules.core.dtos.recipe.responses.RecipeSummaryResponse;
 import com.dvaults.recipecatalogue.modules.core.dtos.section.responses.SectionResponse;
 import com.dvaults.recipecatalogue.modules.core.models.Recipe;
 import com.dvaults.recipecatalogue.modules.core.models.Section;
@@ -14,14 +17,12 @@ import lombok.AccessLevel;
 import lombok.Setter;
 import org.mapstruct.Builder;
 import org.mapstruct.CollectionMappingStrategy;
-import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.util.Comparator;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.Map;
     collectionMappingStrategy = CollectionMappingStrategy.TARGET_IMMUTABLE,
     nullValueIterableMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT,
     uses = {
+        UserMapper.class,
         SectionMapper.class
     }
 )
@@ -58,20 +60,21 @@ public abstract class RecipeMapper {
 
   }
 
-  @Named("mapToRecipeResponse")
+  @Named("mapToRecipeDetailsResponse")
   @Mapping(target = "media", source = "recipe", qualifiedByName = "mapToMediaResponse")
+  @Mapping(target = "owner", source = "recipe.owner", qualifiedByName = "toUserSummaryResponse")
   @Mapping(target = "sections", source = "sectionResponseList")
-  protected abstract RecipeResponse mapToRecipeResponse(
+  protected abstract RecipeDetailsResponse mapToRecipeDetailsResponse(
       Recipe recipe,
       List<SectionResponse> sectionResponseList
   );
 
-  @Named("toRecipeResponse")
-  public RecipeResponse toRecipeResponse(
+  @Named("mapToRecipeDetailsResponse")
+  public RecipeDetailsResponse toRecipeDetailsResponse(
       Recipe recipe,
       Map<Section, List<Step>> stepsBySectionMap
   ) {
-    return mapToRecipeResponse(
+    return mapToRecipeDetailsResponse(
         recipe,
         stepsBySectionMap.entrySet()
             .stream()
@@ -82,6 +85,9 @@ public abstract class RecipeMapper {
             .toList()
     );
   }
+
+  @Named("toRecipeSummaryResponse")
+  public abstract RecipeSummaryResponse toRecipeSummaryResponse(Recipe recipe);
 
   @Named("screenPostRecipeRequest")
   @Mapping(
@@ -94,6 +100,8 @@ public abstract class RecipeMapper {
   )
   public abstract PostRecipeRequest screenPostRecipeRequest(PostRecipeRequest postRecipeRequest);
 
+  public abstract PatchRecipeAccessLevelRequest screenPatchRecipeAccessLevelRequest(PatchRecipeAccessLevelRequest patchRecipeAccessLevelRequest);
+
   @Named("screenPutRecipeRequest")
   @Mapping(
       target = "name",
@@ -105,5 +113,7 @@ public abstract class RecipeMapper {
   )
   @Mapping(target = "sections", qualifiedByName = "screenPutSectionRequestList")
   public abstract PutRecipeRequest screenPutRecipeRequest(PutRecipeRequest putRecipeRequest);
+
+  public abstract DeleteRecipeRequest screenDeleteRecipeRequest(DeleteRecipeRequest deleteRecipeRequest);
 
 }

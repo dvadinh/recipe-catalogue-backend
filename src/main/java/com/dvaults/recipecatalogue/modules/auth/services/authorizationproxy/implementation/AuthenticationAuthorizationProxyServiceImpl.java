@@ -4,7 +4,7 @@ import com.dvaults.recipecatalogue.common.errors.exceptions.ResourceNotFoundExce
 import com.dvaults.recipecatalogue.common.jwt.UserJwt;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUsernamePasswordRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PostUserRequest;
-import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserResponse;
+import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserDetailsResponse;
 import com.dvaults.recipecatalogue.modules.auth.errors.AuthenticationErrorDictionary;
 import com.dvaults.recipecatalogue.modules.auth.errors.UserErrorDictionary;
 import com.dvaults.recipecatalogue.modules.auth.mappers.AuthenticationMapper;
@@ -34,12 +34,12 @@ public class AuthenticationAuthorizationProxyServiceImpl implements Authenticati
   private final AuthenticationMapper authenticationMapper;
 
   @Override
-  public UserResponse findUserByPrincipal(@Nullable UserPrincipal principal) {
+  public UserDetailsResponse findUserByPrincipal(@Nullable UserPrincipal principal) {
     return authenticationService.findUserByPrincipal(principal);
   }
 
   @Override
-  public UserResponse create(PostUserRequest postUserRequest) {
+  public UserDetailsResponse create(PostUserRequest postUserRequest) {
     return authenticationService.create(userMapper.screenPostUserRequest(postUserRequest));
   }
 

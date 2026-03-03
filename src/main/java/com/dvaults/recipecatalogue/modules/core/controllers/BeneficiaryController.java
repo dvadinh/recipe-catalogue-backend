@@ -1,8 +1,11 @@
 package com.dvaults.recipecatalogue.modules.core.controllers;
 
 import com.dvaults.recipecatalogue.modules.core.dtos.beneficiary.requests.DeleteBeneficiaryRequest;
+import com.dvaults.recipecatalogue.modules.core.dtos.beneficiary.requests.PostBeneficiaryRequest;
 import com.dvaults.recipecatalogue.modules.core.dtos.beneficiary.responses.BeneficiaryResponse;
 import com.dvaults.recipecatalogue.modules.core.services.authorizationproxy.specification.BeneficiaryAuthorizationProxyService;
+import com.dvaults.recipecatalogue.modules.core.validation.constraints.beneficiary.ValidDeleteBeneficiaryRequest;
+import com.dvaults.recipecatalogue.modules.core.validation.constraints.beneficiary.ValidPostBeneficiaryRequest;
 import com.dvaults.recipecatalogue.security.authentication.tokens.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,40 +31,41 @@ public class BeneficiaryController {
 
   private final BeneficiaryAuthorizationProxyService beneficiaryAuthorizationProxyService;
 
-  // @GetMapping(path = "/recipes/{recipeId}/beneficiaries")
-  // public Callable<ResponseEntity<List<? extends BeneficiaryResponse>>> getAllByRecipeId(
-  //     HttpServletRequest request,
-  //     HttpServletResponse response,
-  //     @AuthenticationPrincipal UserPrincipal principal,
-  //     @PathVariable Long recipeId
-  // ) {
-  //   return () -> ResponseEntity.status(HttpStatus.OK)
-  //       .body(beneficiaryAuthorizationProxyService.findAllByRecipeId(principal, recipeId));
-  // }
-  //
-  // @PostMapping(path = "/recipes/{recipeId}/beneficiaries")
-  // public Callable<ResponseEntity<BeneficiaryResponse>> postByRecipeId(
-  //     HttpServletRequest request,
-  //     HttpServletResponse response,
-  //     @AuthenticationPrincipal UserPrincipal principal,
-  //     @PathVariable Long recipeId
-  // ) {
-  //   return () -> ResponseEntity.status(HttpStatus.CREATED)
-  //       .body(beneficiaryAuthorizationProxyService.createByRecipeId(principal, recipeId));
-  // }
-  //
-  // @DeleteMapping(path = "/recipes/{recipeId}/beneficiaries")
-  // public Callable<ResponseEntity<Void>> getAllByRecipeId(
-  //     HttpServletRequest request,
-  //     HttpServletResponse response,
-  //     @AuthenticationPrincipal UserPrincipal principal,
-  //     @PathVariable Long recipeId,
-  //     @RequestBody @ValidDeleteBeneficiaryRequest DeleteBeneficiaryRequest deleteBeneficiaryRequest
-  // ) {
-  //   return () -> {
-  //     beneficiaryAuthorizationProxyService.deleteAllByRecipeId(principal, recipeId, deleteBeneficiaryRequest);
-  //     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-  //   };
-  // }
+  @GetMapping(path = "/recipes/{recipeId}/beneficiaries")
+  public Callable<ResponseEntity<List<BeneficiaryResponse>>> getAllByRecipeId(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @AuthenticationPrincipal UserPrincipal principal,
+      @PathVariable Long recipeId
+  ) {
+    return () -> ResponseEntity.status(HttpStatus.OK)
+        .body(beneficiaryAuthorizationProxyService.findAllByRecipeId(principal, recipeId));
+  }
+
+  @PostMapping(path = "/recipes/{recipeId}/beneficiaries")
+  public Callable<ResponseEntity<List<BeneficiaryResponse>>> postByRecipeId(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @AuthenticationPrincipal UserPrincipal principal,
+      @PathVariable Long recipeId,
+      @RequestBody @ValidPostBeneficiaryRequest PostBeneficiaryRequest postBeneficiaryRequest
+  ) {
+    return () -> ResponseEntity.status(HttpStatus.CREATED)
+        .body(beneficiaryAuthorizationProxyService.createByRecipeId(principal, recipeId, postBeneficiaryRequest));
+  }
+
+  @DeleteMapping(path = "/recipes/{recipeId}/beneficiaries")
+  public Callable<ResponseEntity<Void>> deleteAllByRecipeId(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @AuthenticationPrincipal UserPrincipal principal,
+      @PathVariable Long recipeId,
+      @RequestBody @ValidDeleteBeneficiaryRequest DeleteBeneficiaryRequest deleteBeneficiaryRequest
+  ) {
+    return () -> {
+      beneficiaryAuthorizationProxyService.deleteAllByRecipeId(principal, recipeId, deleteBeneficiaryRequest);
+      return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    };
+  }
 
 }

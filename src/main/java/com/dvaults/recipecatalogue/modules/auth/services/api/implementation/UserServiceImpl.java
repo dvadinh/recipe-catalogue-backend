@@ -3,7 +3,7 @@ package com.dvaults.recipecatalogue.modules.auth.services.api.implementation;
 import com.dvaults.recipecatalogue.common.dtos.requests.PatchRequestOperation;
 import com.dvaults.recipecatalogue.common.errors.exceptions.ConflictException;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUserRequest;
-import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserResponse;
+import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserDetailsResponse;
 import com.dvaults.recipecatalogue.modules.auth.errors.UserErrorDictionary;
 import com.dvaults.recipecatalogue.modules.auth.mappers.UserMapper;
 import com.dvaults.recipecatalogue.modules.auth.models.User;
@@ -25,13 +25,13 @@ public class UserServiceImpl implements UserService {
   private final UserMapper userMapper;
 
   @Override
-  public List<UserResponse> findAllByUsers(List<User> users) {
-    return userMapper.toUserResponseList(users);
+  public List<UserDetailsResponse> findAllByUsers(List<User> users) {
+    return userMapper.toUserDetailsResponseList(users);
   }
 
   @Override
-  public UserResponse findByUser(User user) {
-    return userMapper.toUserResponse(user);
+  public UserDetailsResponse findByUser(User user) {
+    return userMapper.toUserDetailsResponse(user);
   }
 
   @Override
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public Pair<UserResponse, Boolean> updateByUser(
+  public Pair<UserDetailsResponse, Boolean> updateByUser(
       User user,
       PatchUserRequest screenedRequest
   ) {
@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
     }
 
     return Pair.of(
-        userMapper.toUserResponse(
+        userMapper.toUserDetailsResponse(
             mutated
                 ? userRepository.save(user)
                 : user

@@ -4,7 +4,7 @@ import com.dvaults.recipecatalogue.configs.BasicAuthenticationConfigs;
 import com.dvaults.recipecatalogue.configs.JwtConfigs;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUsernamePasswordRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PostUserRequest;
-import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserResponse;
+import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserDetailsResponse;
 import com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.specification.AuthenticationAuthorizationProxyService;
 import com.dvaults.recipecatalogue.modules.auth.validation.constraints.ValidClientRegistrationId;
 import com.dvaults.recipecatalogue.modules.auth.validation.constraints.ValidPatchUsernamePasswordRequest;
@@ -13,7 +13,6 @@ import com.dvaults.recipecatalogue.security.authentication.tokens.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -39,7 +38,7 @@ public class AuthenticationController {
   private final AuthenticationAuthorizationProxyService authenticationAuthorizationProxyService;
 
   @GetMapping(path = "/auth/who-am-i")
-  public Callable<ResponseEntity<UserResponse>> whoAmI(
+  public Callable<ResponseEntity<UserDetailsResponse>> whoAmI(
       HttpServletRequest request,
       HttpServletResponse response,
       @AuthenticationPrincipal UserPrincipal principal
@@ -89,7 +88,7 @@ public class AuthenticationController {
       BasicAuthenticationConfigs.SIGN_UP_URI,
       BasicAuthenticationConfigs.SIGN_IN_URI
   })
-  public Callable<ResponseEntity<UserResponse>> basicAuth(
+  public Callable<ResponseEntity<UserDetailsResponse>> basicAuth(
       HttpServletRequest request,
       HttpServletResponse response,
       @AuthenticationPrincipal UserPrincipal principal
@@ -99,7 +98,7 @@ public class AuthenticationController {
   }
 
   @PostMapping(path = "/users")
-  public Callable<ResponseEntity<UserResponse>> post(
+  public Callable<ResponseEntity<UserDetailsResponse>> post(
       HttpServletRequest request,
       HttpServletResponse response,
       @AuthenticationPrincipal UserPrincipal principal,

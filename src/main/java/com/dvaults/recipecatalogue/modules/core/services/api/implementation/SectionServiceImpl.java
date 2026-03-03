@@ -21,7 +21,9 @@ import java.util.List;
 public class SectionServiceImpl implements SectionService {
 
   private final MediaService mediaService;
+
   private final SectionRepository sectionRepository;
+
   private final CommonMapper commonMapper;
 
   @Override
