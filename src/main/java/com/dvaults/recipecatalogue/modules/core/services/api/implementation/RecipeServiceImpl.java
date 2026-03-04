@@ -61,7 +61,7 @@ public class RecipeServiceImpl implements RecipeService {
   @Override
   public List<RecipeDetailsResponse> findAllByUserId(long userId) {
 
-    List<Recipe> recipes = recipeRepository.findAllByUserIdFetchOwnerAndSections(userId);
+    List<Recipe> recipes = recipeRepository.findAllAccessibleByUserIdFetchOwnerAndSections(userId);
 
     Map<Long, List<Step>> stepsBySectionId = recipes.stream()
         .flatMap(recipe -> recipe.getSections().stream())

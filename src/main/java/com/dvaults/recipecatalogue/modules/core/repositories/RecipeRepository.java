@@ -23,10 +23,11 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
       "LEFT JOIN FETCH r.owner o " +
       "LEFT JOIN FETCH r.sections s " +
       "LEFT JOIN r.beneficiaries b " +
-      "WHERE o.id = :userId " +
+      "WHERE r.accessLevel = 'PUBLIC'" +
+          "OR o.id = :userId " +
           "OR b.user.id = :userId "
   )
-  List<Recipe> findAllByUserIdFetchOwnerAndSections(long userId);
+  List<Recipe> findAllAccessibleByUserIdFetchOwnerAndSections(long userId);
 
   @Query("SELECT r " +
       "FROM recipes r " +
