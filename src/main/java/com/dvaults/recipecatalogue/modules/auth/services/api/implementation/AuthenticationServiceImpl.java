@@ -790,7 +790,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         .sameSite("Lax")
         .secure(!isLocalEnvironment());
     if (!isLocalEnvironment()) {
-      builder.domain("api.recipecatalogue.com");
+      builder.domain(jwtConfigs.getCookieDomain());
     }
 
     return builder.build();

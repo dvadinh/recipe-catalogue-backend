@@ -30,6 +30,7 @@ flyway:
   target-version:
 
 jwt:
+  cookie-domain:
   access-token-time-to-live: 86400
   refresh-token-time-to-live: 604800
 

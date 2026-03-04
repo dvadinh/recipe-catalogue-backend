@@ -37,6 +37,10 @@ public class JwtConfigs {
   public static final SignatureAlgorithm SIGNATURE_ALGORITHM = Jwts.SIG.ES384;
 
   @Getter
+  @Value("${jwt.cookie-domain}")
+  private String cookieDomain;
+
+  @Getter
   @Value("${jwt.access-token-time-to-live}")
   private long accessTokenTimeToLive;
 
