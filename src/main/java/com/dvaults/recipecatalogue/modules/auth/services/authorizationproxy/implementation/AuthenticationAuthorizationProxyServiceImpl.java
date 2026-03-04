@@ -1,5 +1,6 @@
 package com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.implementation;
 
+import com.dvaults.recipecatalogue.common.dtos.JwtDecision;
 import com.dvaults.recipecatalogue.common.errors.exceptions.ResourceNotFoundException;
 import com.dvaults.recipecatalogue.common.jwt.UserJwt;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUsernamePasswordRequest;
@@ -44,19 +45,34 @@ public class AuthenticationAuthorizationProxyServiceImpl implements Authenticati
   }
 
   @Override
-  public void updateUsernamePassword(PatchUsernamePasswordRequest patchUsernamePasswordRequest) {
+  public JwtDecision updateUsernamePassword(
+      UserPrincipal principal,
+      PatchUsernamePasswordRequest patchUsernamePasswordRequest
+  ) {
 
     PatchUsernamePasswordRequest screenedRequest =
         userMapper.screenPatchUsernamePasswordRequest(patchUsernamePasswordRequest);
 
-    Long sub = authenticationService.updateUsernamePassword(
+    JwtDecision jwtDecision = authenticationService.updateUsernamePassword(
         userRepository.findById(screenedRequest.id())
             .orElseThrow(() -> new ResourceNotFoundException(UserErrorDictionary.USER_NOT_FOUND_001)),
         screenedRequest
     );
 
-    if (sub != null) {
-      authenticationService.revokeJwtTokens(String.valueOf(sub));
+    if (jwtDecision == JwtDecision.NONE) {
+      return JwtDecision.NONE;
+    }
+
+    if (!principal.getId().equals(screenedRequest.id())) {
+      if (jwtDecision == JwtDecision.TRIGGER_RESET) {
+        authenticationService.triggerJwtAccessTokenReset(String.valueOf(screenedRequest.id()));
+        return JwtDecision.NONE;
+      } else {
+        return jwtDecision;
+      }
+
+    } else {
+      return JwtDecision.RESET;
     }
 
   }
@@ -79,6 +95,16 @@ public class AuthenticationAuthorizationProxyServiceImpl implements Authenticati
 
     return authenticationService.refreshJwtTokens(principalJwt, jwtRefreshToken);
 
+  }
+
+  @Override
+  public void triggerJwtAccessTokenReset(String sub) {
+    authenticationService.triggerJwtAccessTokenReset(sub);
+  }
+
+  @Override
+  public void revokeJwtTokens(String sub) {
+    authenticationService.revokeJwtTokens(sub);
   }
 
   @Override

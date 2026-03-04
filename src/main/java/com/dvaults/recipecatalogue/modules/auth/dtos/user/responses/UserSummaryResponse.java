@@ -6,5 +6,5 @@ public record UserSummaryResponse(
 
     String displayName
 
-) {
+) implements UserResponse {
 }

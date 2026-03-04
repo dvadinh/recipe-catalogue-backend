@@ -128,6 +128,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .owner(principalUser)
                 .name(screenedRequest.name())
                 .description(screenedRequest.description())
+                .accessLevel(screenedRequest.accessLevel())
                 .build()),
         Map.of()
     );

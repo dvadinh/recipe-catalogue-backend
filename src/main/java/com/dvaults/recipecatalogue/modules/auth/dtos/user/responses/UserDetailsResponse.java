@@ -16,5 +16,5 @@ public record UserDetailsResponse(
 
     Boolean enabled
 
-) {
+) implements UserResponse {
 }

@@ -1,5 +1,6 @@
 package com.dvaults.recipecatalogue.modules.auth.services.api.implementation;
 
+import com.dvaults.recipecatalogue.common.dtos.JwtDecision;
 import com.dvaults.recipecatalogue.common.dtos.requests.PatchRequestOperation;
 import com.dvaults.recipecatalogue.common.errors.exceptions.BadGatewayException;
 import com.dvaults.recipecatalogue.common.errors.exceptions.ConflictException;
@@ -178,14 +179,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Override
   @Transactional
-  public Long updateUsernamePassword(
+  public JwtDecision updateUsernamePassword(
       User user,
       PatchUsernamePasswordRequest screenedRequest
   ) {
 
-    if (user.getUsername().equals(screenedRequest.username()) &&
-        passwordEncoder.matches(screenedRequest.password(), user.getPassword())
-    ) return null;
+    boolean usernameMutated = false;
+    boolean passwordMutated = false;
 
     if (screenedRequest.usernameOperation() == PatchRequestOperation.UPDATE
         && screenedRequest.passwordOperation() == PatchRequestOperation.UPDATE
@@ -194,8 +194,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
           SecurityUtils.screenUsernamePassword(
               new UsernamePasswordRequest(
                   screenedRequest.username(),
-                  screenedRequest.password()
-              )
+                  screenedRequest.password())
           );
       if (!usernamePasswordValidation.getFirst()) {
         throw new RequestValidationException(
@@ -232,16 +231,31 @@ public class AuthenticationServiceImpl implements AuthenticationService {
               }
             });
         user.setUsername(screenedRequest.username());
+        usernameMutated = true;
       }
     }
 
     if (screenedRequest.passwordOperation() == PatchRequestOperation.UPDATE) {
-      user.setPassword(passwordEncoder.encode(screenedRequest.password()));
+      if (!passwordEncoder.matches(screenedRequest.password(), user.getPassword())) {
+        user.setPassword(passwordEncoder.encode(screenedRequest.password()));
+        passwordMutated = true;
+      }
+    }
+
+    if (!usernameMutated && !passwordMutated) {
+      return JwtDecision.NONE;
     }
 
     userRepository.save(user);
 
-    return user.getId();
+    JwtDecision jwtDecision;
+    if (usernameMutated) {
+      jwtDecision = JwtDecision.TRIGGER_RESET;
+    } else {
+      jwtDecision = JwtDecision.TRIGGER_FORCE_REAUTHENTICATION;
+    }
+
+    return jwtDecision;
 
   }
 

@@ -1,5 +1,6 @@
 package com.dvaults.recipecatalogue.modules.auth.services.api.specification;
 
+import com.dvaults.recipecatalogue.common.dtos.JwtDecision;
 import com.dvaults.recipecatalogue.common.jwt.UserJwt;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUsernamePasswordRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PostUserRequest;
@@ -27,7 +28,7 @@ public interface AuthenticationService {
   UserDetailsResponse create(PostUserRequest screenedRequest);
 
   @PreAuthorize("@authenticationAuthorizationService.preAuthorizeUpdateUsernamePassword(principal, #user)")
-  Long updateUsernamePassword(
+  JwtDecision updateUsernamePassword(
       User user,
       PatchUsernamePasswordRequest screenedRequest
   );

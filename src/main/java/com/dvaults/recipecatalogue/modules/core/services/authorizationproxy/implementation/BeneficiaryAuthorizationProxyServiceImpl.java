@@ -36,10 +36,16 @@ public class BeneficiaryAuthorizationProxyServiceImpl implements BeneficiaryAuth
       UserPrincipal principal,
       long recipeId
   ) {
-    return beneficiaryService.findAllByRecipe(
-        recipeRepository.findByIdFetchBeneficiaries(recipeId)
-            .orElseThrow(() -> new ResourceNotFoundException(RecipeErrorDictionary.RECIPE_NOT_FOUND_001))
-    );
+
+    Recipe recipe = recipeRepository.findByIdFetchBeneficiaries(recipeId)
+        .orElseThrow(() -> new ResourceNotFoundException(RecipeErrorDictionary.RECIPE_NOT_FOUND_001));
+
+    if (recipe.getAccessLevel() == RecipeAccessLevel.PRIVATE) {
+      return List.of();
+    }
+
+    return beneficiaryService.findAllByRecipe(recipe);
+
   }
 
   @Override

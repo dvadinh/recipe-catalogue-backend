@@ -28,6 +28,7 @@ public enum RecipeErrorDictionary implements ErrorDictionaryDescriptor {
   public static final String DESCRIPTION_ERROR_MESSAGE_001 = "Description must be provided and not empty.";
 
   public static final String ACCESS_LEVEL_ERROR_MESSAGE_001 = "Access level must be provided when operation is UPDATE.";
+  public static final String ACCESS_LEVEL_ERROR_MESSAGE_002 = "Access level must be provided.";
 
   public static final String ACCESS_LEVEL_OPERATION_ERROR_MESSAGE_001 = "Access level cannot be cleared.";
 

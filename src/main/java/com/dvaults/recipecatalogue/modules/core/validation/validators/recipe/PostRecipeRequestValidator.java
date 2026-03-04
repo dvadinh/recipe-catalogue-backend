@@ -47,6 +47,15 @@ public class PostRecipeRequestValidator implements ConstraintValidator<ValidPost
       );
     }
 
+    if (screenedRequest.accessLevel() == null) {
+      isValid = false;
+      ValidationUtils.constructErrorFromMessage(
+          errors,
+          "accessLevel",
+          RecipeErrorDictionary.ACCESS_LEVEL_ERROR_MESSAGE_002
+      );
+    }
+
     if (!isValid) {
       throw new RequestValidationException(
           RecipeErrorDictionary.INVALID_RECIPE_DETAILS_001,

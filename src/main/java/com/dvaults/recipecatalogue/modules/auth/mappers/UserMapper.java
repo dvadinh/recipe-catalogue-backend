@@ -36,6 +36,10 @@ public abstract class UserMapper {
   @IterableMapping(qualifiedByName = "toUserDetailsResponse")
   public abstract List<UserDetailsResponse> toUserDetailsResponseList(List<User> userList);
 
+  @Named("toUserSummaryResponseList")
+  @IterableMapping(qualifiedByName = "toUserSummaryResponse")
+  public abstract List<UserSummaryResponse> toUserSummaryResponseList(List<User> userList);
+
   @Named("screenPostUserRequest")
   @Mapping(
       target = "username",

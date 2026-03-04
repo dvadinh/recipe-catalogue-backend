@@ -1,5 +1,6 @@
 package com.dvaults.recipecatalogue.modules.auth.controllers;
 
+import com.dvaults.recipecatalogue.common.dtos.JwtDecision;
 import com.dvaults.recipecatalogue.configs.BasicAuthenticationConfigs;
 import com.dvaults.recipecatalogue.configs.JwtConfigs;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUsernamePasswordRequest;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.concurrent.Callable;
 
 @RestController
@@ -113,11 +115,31 @@ public class AuthenticationController {
       HttpServletRequest request,
       HttpServletResponse response,
       @AuthenticationPrincipal UserPrincipal principal,
-      @RequestBody @ValidPatchUsernamePasswordRequest PatchUsernamePasswordRequest patchUsernamePasswordRequest
+      @RequestBody @ValidPatchUsernamePasswordRequest PatchUsernamePasswordRequest patchUsernamePasswordRequest,
+      @CookieValue(name = JwtConfigs.ACCESS_TOKEN_COOKIE_NAME, required = false) String jwtAccessToken,
+      @CookieValue(name = JwtConfigs.REFRESH_TOKEN_COOKIE_NAME, required = false) String jwtRefreshToken
   ) {
     return () -> {
 
-      authenticationAuthorizationProxyService.updateUsernamePassword(patchUsernamePasswordRequest);
+      JwtDecision jwtDecision = authenticationAuthorizationProxyService.updateUsernamePassword(
+          principal,
+          patchUsernamePasswordRequest
+      );
+
+      if (jwtDecision == JwtDecision.RESET) {
+        Pair<ResponseCookie, ResponseCookie> jwtTokenCookies = authenticationAuthorizationProxyService.refreshJwtTokens(
+            jwtAccessToken,
+            jwtRefreshToken
+        );
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtTokenCookies.getFirst().toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtTokenCookies.getSecond().toString());
+
+      } else if (jwtDecision == JwtDecision.TRIGGER_RESET) {
+        authenticationAuthorizationProxyService.triggerJwtAccessTokenReset(String.valueOf(principal.getId()));
+
+      } else if (jwtDecision == JwtDecision.TRIGGER_FORCE_REAUTHENTICATION) {
+        authenticationAuthorizationProxyService.revokeJwtTokens(String.valueOf(principal.getId()));
+      }
 
       return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 

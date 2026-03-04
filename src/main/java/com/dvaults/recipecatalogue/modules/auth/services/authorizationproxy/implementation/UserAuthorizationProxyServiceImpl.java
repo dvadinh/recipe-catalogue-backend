@@ -1,9 +1,11 @@
 package com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.implementation;
 
+import com.dvaults.recipecatalogue.common.dtos.JwtDecision;
 import com.dvaults.recipecatalogue.common.dtos.requests.PatchRequestOperation;
 import com.dvaults.recipecatalogue.common.errors.exceptions.ResourceNotFoundException;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUserRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserDetailsResponse;
+import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserResponse;
 import com.dvaults.recipecatalogue.modules.auth.errors.UserErrorDictionary;
 import com.dvaults.recipecatalogue.modules.auth.mappers.UserMapper;
 import com.dvaults.recipecatalogue.modules.auth.models.User;
@@ -11,6 +13,7 @@ import com.dvaults.recipecatalogue.modules.auth.repositories.UserRepository;
 import com.dvaults.recipecatalogue.modules.auth.services.api.specification.AuthenticationService;
 import com.dvaults.recipecatalogue.modules.auth.services.api.specification.UserService;
 import com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.specification.UserAuthorizationProxyService;
+import com.dvaults.recipecatalogue.security.authentication.tokens.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -29,8 +32,11 @@ public class UserAuthorizationProxyServiceImpl implements UserAuthorizationProxy
   private final UserMapper userMapper;
 
   @Override
-  public List<UserDetailsResponse> findAll() {
-    return userService.findAllByUsers(userRepository.findAll());
+  public List<? extends UserResponse> findAll(boolean isSummaryResponse) {
+    return userService.findAllByUsers(
+        userRepository.findAll(),
+        isSummaryResponse
+    );
   }
 
   @Override
@@ -41,7 +47,8 @@ public class UserAuthorizationProxyServiceImpl implements UserAuthorizationProxy
   }
 
   @Override
-  public UserDetailsResponse updateById(
+  public Pair<UserDetailsResponse, JwtDecision> updateById(
+      UserPrincipal principal,
       long id,
       PatchUserRequest patchUserRequest
   ) {
@@ -49,24 +56,22 @@ public class UserAuthorizationProxyServiceImpl implements UserAuthorizationProxy
     User user = userRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException(UserErrorDictionary.USER_NOT_FOUND_001));
 
-    PatchUserRequest screenedRequest = userMapper.screenPatchUserRequest(patchUserRequest);
-
-    Pair<UserDetailsResponse, Boolean> responsePair = userService.updateByUser(
+    Pair<UserDetailsResponse, JwtDecision> userDetailsResponsePair = userService.updateByUser(
         user,
-        screenedRequest
+        userMapper.screenPatchUserRequest(patchUserRequest)
     );
 
-    if (responsePair.getSecond()) {
-      if (screenedRequest.typeOperation() == PatchRequestOperation.UPDATE
-          || user.isEnabled() != responsePair.getFirst().enabled()
-      ) {
-        authenticationService.revokeJwtTokens(String.valueOf(user.getId()));
-      } else {
-        authenticationService.triggerJwtAccessTokenReset(String.valueOf(user.getId()));
-      }
+    JwtDecision jwtDecision = userDetailsResponsePair.getSecond();
+    if (jwtDecision == JwtDecision.TRIGGER_RESET
+        && principal.getId().equals(id)
+    ) {
+      jwtDecision = JwtDecision.RESET;
     }
 
-    return responsePair.getFirst();
+    return Pair.of(
+        userDetailsResponsePair.getFirst(),
+        jwtDecision
+    );
 
   }
 

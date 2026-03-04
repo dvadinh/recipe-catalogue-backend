@@ -98,6 +98,7 @@ public abstract class RecipeMapper {
       target = "description",
       expression = "java(postRecipeRequest.description() == null ? null : postRecipeRequest.description().trim())"
   )
+  @Mapping(target = "accessLevel", source = "postRecipeRequest.accessLevel")
   public abstract PostRecipeRequest screenPostRecipeRequest(PostRecipeRequest postRecipeRequest);
 
   public abstract PatchRecipeAccessLevelRequest screenPatchRecipeAccessLevelRequest(PatchRecipeAccessLevelRequest patchRecipeAccessLevelRequest);
