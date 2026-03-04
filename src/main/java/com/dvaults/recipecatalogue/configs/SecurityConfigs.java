@@ -190,8 +190,10 @@ public class SecurityConfigs {
     corsConfiguration.setAllowedOriginPatterns(List.of(
         "http://localhost:*",
         "http://127.0.0.1:*",
-        "https://www.recipecatalogue.com",
+        "https://staging.recipecatalogue.com",
+        // "https://www.staging.recipecatalogue.com",
         "https://recipecatalogue.com"
+        // , "https://www.recipecatalogue.com"
     ));
     corsConfiguration.setAllowedMethods(List.of(
         "GET",

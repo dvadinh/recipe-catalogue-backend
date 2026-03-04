@@ -30,6 +30,9 @@ flyway:
   locations: classpath:db/migration/prod/
   baseline-version:
   target-version:
+  placeholders:
+    admin_username: ${POSTGRES_ADMIN_USERNAME}
+    admin_password: ${POSTGRES_ADMIN_PASSWORD}
 
 jwt:
   cookie-domain: recipecatalogue.com
