@@ -10,7 +10,7 @@ SERVICE_NAME := recipe-catalogue
 STAGING_SERVICE_DESTINATION := /etc/systemd/system/$(SERVICE_NAME)-staging.service
 PROD_SERVICE_DESTINATION := /etc/systemd/system/$(SERVICE_NAME)-prod.service
 
-.PHONY: list create-jwt-keys overwrite-jwt-keys clean-jwt-keys show-jwt-keys build-jar deploy-jar restart-staging restart-prod stop-service status journal-staging journal-prod create-staging-service create-prod-service deploy-staging deploy-prod
+.PHONY: list create-jwt-keys overwrite-jwt-keys clean-jwt-keys show-jwt-keys build-jar deploy-jar create-staging-service create-prod-service restart-staging restart-prod stop-service status journal-staging journal-prod deploy-staging deploy-prod
 
 list:
 	@echo "Available targets:"

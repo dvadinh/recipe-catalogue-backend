@@ -191,9 +191,7 @@ public class SecurityConfigs {
         "http://localhost:*",
         "http://127.0.0.1:*",
         "https://staging.recipecatalogue.com",
-        // "https://www.staging.recipecatalogue.com",
         "https://recipecatalogue.com"
-        // , "https://www.recipecatalogue.com"
     ));
     corsConfiguration.setAllowedMethods(List.of(
         "GET",
