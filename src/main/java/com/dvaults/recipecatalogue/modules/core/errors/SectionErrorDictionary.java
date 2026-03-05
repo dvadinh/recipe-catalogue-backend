@@ -11,6 +11,8 @@ public enum SectionErrorDictionary implements ErrorDictionaryDescriptor {
 
   SECTION_NOT_FOUND_001(HttpStatus.NOT_FOUND, "Section not found."),
 
+  SECTION_ACCESS_DENIED_001(HttpStatus.FORBIDDEN, "Only admins and the recipe owner can update its section."),
+
   ;
 
   public static final String TITLE_ERROR_MESSAGE_001 = "Section title must be provided and not empty.";

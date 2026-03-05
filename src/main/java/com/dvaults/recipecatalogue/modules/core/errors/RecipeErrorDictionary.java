@@ -16,10 +16,9 @@ public enum RecipeErrorDictionary implements ErrorDictionaryDescriptor {
   INVALID_RECIPE_DETAILS_003(HttpStatus.BAD_REQUEST, "Invalid recipe access level update details."),
   INVALID_RECIPE_DETAILS_004(HttpStatus.BAD_REQUEST, "Invalid recipe deletion details."),
 
-  RECIPE_ACCESS_DENIED_001(HttpStatus.FORBIDDEN, "Only admins can access this resource."),
-  RECIPE_ACCESS_DENIED_002(HttpStatus.FORBIDDEN, "Only admins and the owner can access this resource."),
-  RECIPE_ACCESS_DENIED_003(HttpStatus.FORBIDDEN, "Only admins can disable users."),
-  RECIPE_ACCESS_DENIED_004(HttpStatus.FORBIDDEN, "Only admins can update user's description."),
+  RECIPE_ACCESS_DENIED_001(HttpStatus.FORBIDDEN, "Only admins, its owner and beneficiaries can access a private recipe."),
+  RECIPE_ACCESS_DENIED_002(HttpStatus.FORBIDDEN, "Only admins and its owner can update a recipe."),
+  RECIPE_ACCESS_DENIED_003(HttpStatus.FORBIDDEN, "Only admins and their owner can delete recipes."),
 
   ;
 

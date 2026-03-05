@@ -16,8 +16,9 @@ public enum BeneficiaryErrorDictionary implements ErrorDictionaryDescriptor {
   INVALID_BENEFICIARY_DETAILS_003(HttpStatus.BAD_REQUEST, "Cannot add beneficiaries to a public recipe."),
   INVALID_BENEFICIARY_DETAILS_004(HttpStatus.BAD_REQUEST, "Cannot delete beneficiaries from a public recipe."),
 
-  BENEFICIARY_ACCESS_DENIED_001(HttpStatus.FORBIDDEN, "Only admins can access this resource."),
-  BENEFICIARY_ACCESS_DENIED_002(HttpStatus.FORBIDDEN, "Only admins and the owner can access this resource."),
+  BENEFICIARY_ACCESS_DENIED_001(HttpStatus.FORBIDDEN, "Only admins and the recipe owner can access its beneficiaries."),
+  BENEFICIARY_ACCESS_DENIED_002(HttpStatus.FORBIDDEN, "Only admins and the recipe owner can add its beneficiaries."),
+  BENEFICIARY_ACCESS_DENIED_003(HttpStatus.FORBIDDEN, "Only admins and the recipe owner can delete its beneficiaries."),
 
   ;
 

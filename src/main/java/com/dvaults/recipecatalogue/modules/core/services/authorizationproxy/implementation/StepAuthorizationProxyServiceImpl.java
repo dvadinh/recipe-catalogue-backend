@@ -33,7 +33,7 @@ public class StepAuthorizationProxyServiceImpl implements StepAuthorizationProxy
     }
 
     return stepService.updateMediaByStep(
-        stepRepository.findById(id)
+        stepRepository.findByIdFetchSectionRecipe(id)
             .orElseThrow(() -> new ResourceNotFoundException(StepErrorDictionary.STEP_NOT_FOUND_001)),
         media,
         principal
@@ -47,7 +47,7 @@ public class StepAuthorizationProxyServiceImpl implements StepAuthorizationProxy
       long id
   ) {
     stepService.deleteMediaByStep(
-        stepRepository.findById(id)
+        stepRepository.findByIdFetchSectionRecipe(id)
             .orElseThrow(() -> new ResourceNotFoundException(StepErrorDictionary.STEP_NOT_FOUND_001)),
         principal
     );

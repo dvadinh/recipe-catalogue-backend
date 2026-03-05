@@ -11,6 +11,8 @@ public enum StepErrorDictionary implements ErrorDictionaryDescriptor {
 
   STEP_NOT_FOUND_001(HttpStatus.NOT_FOUND, "Step not found."),
 
+  STEP_ACCESS_DENIED_001(HttpStatus.FORBIDDEN, "Only admins and the recipe owner can update its section's step."),
+
   ;
 
   public static final String TITLE_ERROR_MESSAGE_001 = "Step title must be provided and not empty.";

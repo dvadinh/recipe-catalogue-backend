@@ -14,22 +14,23 @@ PROD_SERVICE_DESTINATION := /etc/systemd/system/$(SERVICE_NAME)-prod.service
 
 list:
 	@echo "Available targets:"
-	@echo " list                 		# show available targets"
-	@echo " create-jwt-keys      		# generate JWT EC P-384 key pair"
-	@echo " overwrite-jwt-keys   		# overwrite JWT key pair"
-	@echo " clean-jwt-keys       		# delete JWT key pair"
-	@echo " show-jwt-keys        		# show JWT key file status"
-	@echo " build-jar            		# build Spring Boot jar"
-	@echo " deploy-jar           		# copy newest jar to deployment directory"
-	@echo " create-staging-service 		# create systemd unit for staging"
-	@echo " create-prod-service    		# create systemd unit for prod"
-	@echo " restart-staging      		# restart staging service"
-	@echo " restart-prod         		# restart prod service"
-	@echo " stop-service         		# stop both staging and prod services"
-	@echo " status               		# show status for both services"
-	@echo " journal              		# tail staging service logs"
-	@echo " deploy-staging       		# build, deploy, restart staging"
-	@echo " deploy-prod          		# build, deploy, restart prod"
+	@echo "  make list                   # show available targets"
+	@echo "  make create-jwt-keys        # generate JWT EC P-384 key pair"
+	@echo "  make overwrite-jwt-keys     # overwrite JWT key pair"
+	@echo "  make clean-jwt-keys         # delete JWT key pair"
+	@echo "  make show-jwt-keys          # show JWT key file status"
+	@echo "  make build-jar              # build Spring Boot jar"
+	@echo "  make deploy-jar             # copy newest jar to deployment directory"
+	@echo "  make create-staging-service # create/overwrite systemd unit for staging"
+	@echo "  make create-prod-service    # create/overwrite systemd unit for prod"
+	@echo "  make restart-staging        # restart staging service"
+	@echo "  make restart-prod           # restart prod service"
+	@echo "  make stop-service           # stop both staging and prod services"
+	@echo "  make status                 # show status for both services"
+	@echo "  make journal-staging        # tail staging service logs"
+	@echo "  make journal-prod           # tail prod service logs"
+	@echo "  make deploy-staging         # build, deploy, restart staging"
+	@echo "  make deploy-prod            # build, deploy, restart prod"
 
 create-jwt-keys:
 	@mkdir -p "$(DESTINATION_DIRECTORY)"
@@ -61,9 +62,11 @@ show-jwt-keys:
 	@echo "Public : $(JWT_PUBLIC_KEY_DESTINATION)  $$( [ -f "$(JWT_PUBLIC_KEY_DESTINATION)" ]  && echo '(exists)' || echo '(missing)' )"
 
 build-jar:
-	./gradlew clean bootJar
+	@echo "Building Spring Boot jar..."
+	@./gradlew clean bootJar
 
 deploy-jar:
+	@echo "Deploying newest jar to $(JAR_DESTINATION)..."
 	@JAR_FILE=$$(ls -1t $(JAR_OUTPUT_DIRECTORY)/*.jar | head -n 1); \
 	if [ -z "$$JAR_FILE" ]; then \
 		echo "No jar found in $(JAR_OUTPUT_DIRECTORY). Run 'make build-jar' first."; \
@@ -75,30 +78,36 @@ deploy-jar:
 	sudo chown -R $$USER:$$USER "$(DEPLOY_DESTINATION)"
 
 restart-staging:
-	sudo systemctl daemon-reload
-	sudo systemctl restart $(SERVICE_NAME)-staging
-	sudo systemctl status $(SERVICE_NAME)-staging --no-pager
+	@echo "Restarting $(SERVICE_NAME)-staging..."
+	@sudo systemctl daemon-reload
+	@sudo systemctl restart $(SERVICE_NAME)-staging
+	@sudo systemctl status $(SERVICE_NAME)-staging --no-pager
 
 restart-prod:
-	sudo systemctl daemon-reload
-	sudo systemctl restart $(SERVICE_NAME)-prod
-	sudo systemctl status $(SERVICE_NAME)-prod --no-pager
+	@echo "Restarting $(SERVICE_NAME)-prod..."
+	@sudo systemctl daemon-reload
+	@sudo systemctl restart $(SERVICE_NAME)-prod
+	@sudo systemctl status $(SERVICE_NAME)-prod --no-pager
 
 stop-service:
-	sudo systemctl stop $(SERVICE_NAME)-staging || true
-	sudo systemctl stop $(SERVICE_NAME)-prod || true
-	sudo systemctl status $(SERVICE_NAME)-staging --no-pager || true
-	sudo systemctl status $(SERVICE_NAME)-prod --no-pager || true
+	@echo "Stopping $(SERVICE_NAME)-staging and $(SERVICE_NAME)-prod (if running)..."
+	@sudo systemctl stop $(SERVICE_NAME)-staging || true
+	@sudo systemctl stop $(SERVICE_NAME)-prod || true
+	@sudo systemctl status $(SERVICE_NAME)-staging --no-pager || true
+	@sudo systemctl status $(SERVICE_NAME)-prod --no-pager || true
 
 status:
-	sudo systemctl status $(SERVICE_NAME)-staging --no-pager || true
-	sudo systemctl status $(SERVICE_NAME)-prod --no-pager || true
+	@echo "Service status:"
+	@sudo systemctl status $(SERVICE_NAME)-staging --no-pager || true
+	@sudo systemctl status $(SERVICE_NAME)-prod --no-pager || true
 
 journal-staging:
-	sudo journalctl -u $(SERVICE_NAME)-staging -f
+	@echo "Tailing logs for $(SERVICE_NAME)-staging (Ctrl+C to stop)..."
+	@sudo journalctl -u $(SERVICE_NAME)-staging -f
 
 journal-prod:
-	sudo journalctl -u $(SERVICE_NAME)-prod -f
+	@echo "Tailing logs for $(SERVICE_NAME)-prod (Ctrl+C to stop)..."
+	@sudo journalctl -u $(SERVICE_NAME)-prod -f
 
 create-staging-service:
 	@if [ -f "$(STAGING_SERVICE_DESTINATION)" ]; then echo "Overwriting $(STAGING_SERVICE_DESTINATION)"; else echo "Creating $(STAGING_SERVICE_DESTINATION)"; fi

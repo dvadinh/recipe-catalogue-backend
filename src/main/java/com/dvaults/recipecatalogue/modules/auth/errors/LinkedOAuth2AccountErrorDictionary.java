@@ -18,6 +18,9 @@ public enum LinkedOAuth2AccountErrorDictionary implements ErrorDictionaryDescrip
       HttpStatus.CONFLICT,
       "Cannot delete OAuth2 account as it is the only authentication method. If you want to delete your account, call the account deletion endpoint."
   ),
+
+  LINKED_OAUTH2_ACCOUNT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "Only admins and the user can access their linked OAuth2 accounts."),
+
   ;
 
   private final HttpStatus status;

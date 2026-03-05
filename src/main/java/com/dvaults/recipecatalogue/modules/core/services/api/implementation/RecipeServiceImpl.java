@@ -90,10 +90,7 @@ public class RecipeServiceImpl implements RecipeService {
   }
 
   @Override
-  public RecipeDetailsResponse findByRecipe(
-      Recipe recipe,
-      UserPrincipal principal
-  ) {
+  public RecipeDetailsResponse findByRecipe(Recipe recipe) {
 
     Map<Section, List<Step>> stepsBySection = recipe.getSections()
         .stream()

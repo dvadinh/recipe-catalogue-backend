@@ -66,9 +66,8 @@ public class RecipeAuthorizationProxyServiceImpl implements RecipeAuthorizationP
       long id
   ) {
     return recipeService.findByRecipe(
-        recipeRepository.findByIdFetchOwnerAndSections(id)
-            .orElseThrow(() -> new ResourceNotFoundException(RecipeErrorDictionary.RECIPE_NOT_FOUND_001)),
-        principal
+        recipeRepository.findByIdFetchOwnerAndSectionsAndBeneficiaries(id)
+            .orElseThrow(() -> new ResourceNotFoundException(RecipeErrorDictionary.RECIPE_NOT_FOUND_001))
     );
   }
 

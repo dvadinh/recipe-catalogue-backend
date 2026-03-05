@@ -32,7 +32,7 @@ public class SectionAuthorizationProxyServiceImpl implements SectionAuthorizatio
     }
 
     return sectionService.updateMediaBySection(
-        sectionRepository.findById(id)
+        sectionRepository.findByIdFetchRecipe(id)
             .orElseThrow(() -> new ResourceNotFoundException(SectionErrorDictionary.SECTION_NOT_FOUND_001)),
         media,
         principal
@@ -45,7 +45,7 @@ public class SectionAuthorizationProxyServiceImpl implements SectionAuthorizatio
       long id
   ) {
     sectionService.deleteMediaBySection(
-        sectionRepository.findById(id)
+        sectionRepository.findByIdFetchRecipe(id)
             .orElseThrow(() -> new ResourceNotFoundException(SectionErrorDictionary.SECTION_NOT_FOUND_001)),
         principal
     );
