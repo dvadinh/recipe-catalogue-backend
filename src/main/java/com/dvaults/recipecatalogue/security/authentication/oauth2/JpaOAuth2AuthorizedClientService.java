@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,14 +28,14 @@ public class JpaOAuth2AuthorizedClientService implements OAuth2AuthorizedClientS
       OAuth2AuthorizedClient oAuth2AuthorizedClient,
       Authentication oAuth2Principal
   ) {
-    authenticationService.saveSigningUpOAuth2AuthorizedClient(oAuth2AuthorizedClient, oAuth2Principal);
+    authenticationService.saveSigningUpOAuth2AuthorizedClient(oAuth2AuthorizedClient, (OAuth2AuthenticationToken) oAuth2Principal);
   }
 
   public void saveSigningInAuthorizedClient(
       OAuth2AuthorizedClient oAuth2AuthorizedClient,
       Authentication oAuth2Principal
   ) {
-    authenticationService.saveSigningInOAuth2AuthorizedClient(oAuth2AuthorizedClient, oAuth2Principal);
+    authenticationService.saveSigningInOAuth2AuthorizedClient(oAuth2AuthorizedClient, (OAuth2AuthenticationToken) oAuth2Principal);
   }
 
   public void linkAuthorizedClient(
@@ -42,7 +43,7 @@ public class JpaOAuth2AuthorizedClientService implements OAuth2AuthorizedClientS
       Authentication oAuth2Principal,
       UserJwt principalJwt
   ) {
-    authenticationService.linkOAuth2AuthorizedClient(oAuth2AuthorizedClient, oAuth2Principal, principalJwt);
+    authenticationService.linkOAuth2AuthorizedClient(oAuth2AuthorizedClient, (OAuth2AuthenticationToken) oAuth2Principal, principalJwt);
   }
 
   @Override
@@ -50,7 +51,7 @@ public class JpaOAuth2AuthorizedClientService implements OAuth2AuthorizedClientS
       OAuth2AuthorizedClient oAuth2AuthorizedClient,
       Authentication oAuth2Principal
   ) {
-    authenticationService.saveOAuth2AuthorizedClient(oAuth2AuthorizedClient, oAuth2Principal);
+    authenticationService.saveOAuth2AuthorizedClient(oAuth2AuthorizedClient, (OAuth2AuthenticationToken) oAuth2Principal);
   }
 
   @Override

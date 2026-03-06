@@ -20,8 +20,8 @@ public interface UserService {
   @PreAuthorize("@userAuthorizationService.preAuthorizeFindByUser(principal, #user)")
   UserDetailsResponse findByUser(User user);
 
-  @PreAuthorize("@userAuthorizationService.preAuthorizeDeleteByUser(principal, #user)")
-  void deleteByUser(User user);
+  @PreAuthorize("@userAuthorizationService.preAuthorizeDeleteAllByUsers(principal, #users)")
+  List<String> deleteAllByUsers(List<User> users);
 
   @PreAuthorize("@userAuthorizationService.preAuthorizeUpdateByUser(principal, #user, #screenedRequest)")
   Pair<UserDetailsResponse, JwtDecision> updateByUser(

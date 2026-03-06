@@ -121,7 +121,8 @@ create-staging-service:
 		'User=ubuntu' \
 		'WorkingDirectory=$(DEPLOY_DESTINATION)' \
 		'Environment="SPRING_PROFILES_ACTIVE=staging"' \
-		'ExecStart=/usr/bin/java -jar $(JAR_DESTINATION)' \
+		'Environment="JAVA_OPTS=-Xms256m -Xmx512m"' \
+		'ExecStart=/usr/bin/java $JAVA_OPTS -jar $(JAR_DESTINATION)' \
 		'Restart=always' \
 		'RestartSec=5' \
 		'' \
@@ -143,7 +144,8 @@ create-prod-service:
 		'User=ubuntu' \
 		'WorkingDirectory=$(DEPLOY_DESTINATION)' \
 		'Environment="SPRING_PROFILES_ACTIVE=prod"' \
-		'ExecStart=/usr/bin/java -jar $(JAR_DESTINATION)' \
+		'Environment="JAVA_OPTS=-Xms256m -Xmx512m"' \
+		'ExecStart=/usr/bin/java $JAVA_OPTS -jar $(JAR_DESTINATION)' \
 		'Restart=always' \
 		'RestartSec=5' \
 		'' \

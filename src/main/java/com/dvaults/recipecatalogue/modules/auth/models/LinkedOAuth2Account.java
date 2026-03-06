@@ -29,6 +29,9 @@ public class LinkedOAuth2Account {
   private LinkedOAuth2AccountId id;
 
   @Column(columnDefinition = "TEXT")
+  private String displayName;
+
+  @Column(columnDefinition = "TEXT")
   private String accessTokenType;
 
   @Column(columnDefinition = "TEXT")

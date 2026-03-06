@@ -14,6 +14,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+
 import java.util.UUID;
 
 public interface AuthenticationService {
@@ -69,23 +71,23 @@ public interface AuthenticationService {
 
   void saveSigningUpOAuth2AuthorizedClient(
       OAuth2AuthorizedClient oAuth2AuthorizedClient,
-      Authentication oAuth2Principal
+      OAuth2AuthenticationToken oAuth2Principal
   );
 
   void saveSigningInOAuth2AuthorizedClient(
       OAuth2AuthorizedClient oAuth2AuthorizedClient,
-      Authentication oAuth2Principal
+      OAuth2AuthenticationToken oAuth2Principal
   );
 
   void linkOAuth2AuthorizedClient(
       OAuth2AuthorizedClient oAuth2AuthorizedClient,
-      Authentication oAuth2Principal,
+      OAuth2AuthenticationToken oAuth2Principal,
       UserJwt principalJwt
   );
 
   void saveOAuth2AuthorizedClient(
       OAuth2AuthorizedClient oAuth2AuthorizedClient,
-      Authentication oAuth2Principal
+      OAuth2AuthenticationToken oAuth2Principal
   );
 
   void removeOAuth2AuthorizedClient(

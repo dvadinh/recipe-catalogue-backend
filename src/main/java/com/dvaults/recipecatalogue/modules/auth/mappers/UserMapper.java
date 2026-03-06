@@ -1,5 +1,6 @@
 package com.dvaults.recipecatalogue.modules.auth.mappers;
 
+import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.DeleteUserRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUserRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUsernamePasswordRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PostUserRequest;
@@ -91,5 +92,7 @@ public abstract class UserMapper {
       expression = "java(usernamePasswordRequest.password() == null ? null : usernamePasswordRequest.password().trim())"
   )
   public abstract UsernamePasswordRequest screenUsernamePasswordRequest(UsernamePasswordRequest usernamePasswordRequest);
+
+  public abstract DeleteUserRequest screenDeleteUserRequest(DeleteUserRequest deleteUserRequest);
 
 }

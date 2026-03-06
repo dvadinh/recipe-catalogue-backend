@@ -45,8 +45,14 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public void deleteByUser(User user) {
-    userRepository.delete(user);
+  public List<String> deleteAllByUsers(List<User> users) {
+
+    userRepository.deleteAll(users);
+
+    return users.stream()
+        .map(user -> String.valueOf(user.getId()))
+        .toList();
+
   }
 
   @Override

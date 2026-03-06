@@ -1,8 +1,8 @@
 package com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.implementation;
 
 import com.dvaults.recipecatalogue.common.dtos.JwtDecision;
-import com.dvaults.recipecatalogue.common.dtos.requests.PatchRequestOperation;
 import com.dvaults.recipecatalogue.common.errors.exceptions.ResourceNotFoundException;
+import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.DeleteUserRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUserRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserDetailsResponse;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserResponse;
@@ -17,7 +17,6 @@ import com.dvaults.recipecatalogue.security.authentication.tokens.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -25,7 +24,6 @@ import java.util.List;
 public class UserAuthorizationProxyServiceImpl implements UserAuthorizationProxyService {
 
   private final UserService userService;
-  private final AuthenticationService authenticationService;
 
   private final UserRepository userRepository;
 
@@ -76,16 +74,8 @@ public class UserAuthorizationProxyServiceImpl implements UserAuthorizationProxy
   }
 
   @Override
-  public void deleteById(long id) {
-    userRepository.findById(id)
-        .ifPresentOrElse(
-            user -> {
-              authenticationService.revokeJwtTokens(String.valueOf(user.getId()));
-              userService.deleteByUser(user);
-            },
-            () -> {
-              throw new ResourceNotFoundException(UserErrorDictionary.USER_NOT_FOUND_001);
-            });
+  public List<String> deleteAll(DeleteUserRequest deleteUserRequest) {
+    return userService.deleteAllByUsers(userRepository.findAllByIdsIn(deleteUserRequest.userIds()));
   }
 
 }

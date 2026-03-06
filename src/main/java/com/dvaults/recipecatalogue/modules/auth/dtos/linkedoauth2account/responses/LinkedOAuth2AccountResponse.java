@@ -6,6 +6,8 @@ public record LinkedOAuth2AccountResponse(
 
     String provider,
 
+    String displayName,
+
     String accessTokenType,
 
     Set<String> accessTokenScopes

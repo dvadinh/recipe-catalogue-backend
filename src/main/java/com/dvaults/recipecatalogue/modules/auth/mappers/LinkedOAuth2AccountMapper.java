@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
@@ -172,11 +173,15 @@ public abstract class LinkedOAuth2AccountMapper {
   }
 
   @Named("toLinkedOAuth2Account")
-  public LinkedOAuth2Account toLinkedOAuth2Account(OAuth2AuthorizedClient oAuth2AuthorizedClient) {
-    return toLinkedOAuth2Account(new LinkedOAuth2Account(), oAuth2AuthorizedClient);
+  public LinkedOAuth2Account toLinkedOAuth2Account(
+      OAuth2AuthorizedClient oAuth2AuthorizedClient,
+      String displayName
+  ) {
+    return toLinkedOAuth2Account(new LinkedOAuth2Account(), oAuth2AuthorizedClient, displayName);
   }
 
   @Named("toLinkedOAuth2Account")
+  @Mapping(target = "displayName", source = "displayName")
   @Mapping(target = "id", source = "oAuth2AuthorizedClient", qualifiedByName = "mapToLinkedOAuth2AccountId")
   @Mapping(target = "accessTokenType", source = "oAuth2AuthorizedClient.accessToken.tokenType.value", qualifiedByName = "mapToAccessTokenType")
   @Mapping(target = "accessTokenValue", source = "oAuth2AuthorizedClient.accessToken.tokenValue")
@@ -188,10 +193,12 @@ public abstract class LinkedOAuth2AccountMapper {
   @Mapping(target = "refreshTokenExpiresAt", source = "oAuth2AuthorizedClient.refreshToken.expiresAt")
   public abstract LinkedOAuth2Account toLinkedOAuth2Account(
       @MappingTarget LinkedOAuth2Account linkedOAuth2Account,
-      OAuth2AuthorizedClient oAuth2AuthorizedClient
+      OAuth2AuthorizedClient oAuth2AuthorizedClient,
+      String displayName
   );
 
   @Named("updateLinkedOAuth2Account")
+  @Mapping(target = "displayName", source = "displayName")
   @Mapping(target = "accessTokenType", source = "oAuth2AuthorizedClient.accessToken.tokenType.value", qualifiedByName = "mapToAccessTokenType")
   @Mapping(target = "accessTokenValue", source = "oAuth2AuthorizedClient.accessToken.tokenValue")
   @Mapping(target = "accessTokenIssuedAt", source = "oAuth2AuthorizedClient.accessToken.issuedAt")
@@ -202,7 +209,8 @@ public abstract class LinkedOAuth2AccountMapper {
   @Mapping(target = "refreshTokenExpiresAt", source = "oAuth2AuthorizedClient.refreshToken.expiresAt")
   public abstract LinkedOAuth2Account updateLinkedOAuth2Account(
       @MappingTarget LinkedOAuth2Account linkedOAuth2Account,
-      OAuth2AuthorizedClient oAuth2AuthorizedClient
+      OAuth2AuthorizedClient oAuth2AuthorizedClient,
+      String displayName
   );
 
   @Named("toLinkedOAuth2AccountResponse")

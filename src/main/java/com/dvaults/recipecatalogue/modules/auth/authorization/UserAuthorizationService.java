@@ -8,6 +8,8 @@ import com.dvaults.recipecatalogue.security.authentication.tokens.UserPrincipal;
 import com.dvaults.recipecatalogue.security.authorization.errors.exceptions.AuthorizationException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service("userAuthorizationService")
 public class UserAuthorizationService {
 
@@ -32,14 +34,18 @@ public class UserAuthorizationService {
 
   }
 
-  public boolean preAuthorizeDeleteByUser(
+  public boolean preAuthorizeDeleteAllByUsers(
       UserPrincipal principal,
-      User user
+      List<User> users
   ) {
 
     if (principal.getAuthority() == Authority.ADMIN) return true;
 
-    if (principal.getId().equals(user.getId())) return true;
+    if (users.isEmpty()
+        || (users.size() == 1 && principal.getId().equals(users.getFirst().getId()))
+    ) {
+      return true;
+    }
 
     throw new AuthorizationException(UserErrorDictionary.USER_ACCESS_DENIED_002);
 

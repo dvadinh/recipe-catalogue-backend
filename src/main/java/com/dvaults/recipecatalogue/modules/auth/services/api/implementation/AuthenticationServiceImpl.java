@@ -47,8 +47,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -391,11 +393,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   @Transactional
   public void saveSigningUpOAuth2AuthorizedClient(
       OAuth2AuthorizedClient oAuth2AuthorizedClient,
-      Authentication oAuth2Principal
+      OAuth2AuthenticationToken oAuth2Principal
   ) {
-
-    log.info("oAuth2AuthorizedClient: {}", oAuth2AuthorizedClient.toString());
-    log.info("oAuth2Principal: {}", oAuth2Principal.toString());
 
     Optional<LinkedOAuth2Account> linkedOAuth2AccountOptional = linkedOAuth2AccountRepository.findByIdFetchUser(
         new LinkedOAuth2AccountId(
@@ -405,7 +404,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     );
 
     if (linkedOAuth2AccountOptional.isEmpty()) {
-      LinkedOAuth2Account linkedOAuth2Account = linkedOAuth2AccountMapper.toLinkedOAuth2Account(oAuth2AuthorizedClient);
+      LinkedOAuth2Account linkedOAuth2Account = linkedOAuth2AccountMapper.toLinkedOAuth2Account(
+          oAuth2AuthorizedClient,
+          extractOAuth2UserForDisplayName(oAuth2AuthorizedClient, oAuth2Principal.getPrincipal())
+      );
       User savedUser = userRepository.save(
           User.builder()
               .type(Authority.USER)
@@ -423,7 +425,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       }
       LinkedOAuth2Account linkedOAuth2Account = linkedOAuth2AccountMapper.updateLinkedOAuth2Account(
           linkedOAuth2AccountOptional.get(),
-          oAuth2AuthorizedClient
+          oAuth2AuthorizedClient,
+          extractOAuth2UserForDisplayName(oAuth2AuthorizedClient, oAuth2Principal.getPrincipal())
       );
       User savedUser = userRepository.save(
           User.builder()
@@ -443,12 +446,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   @Transactional
   public void saveSigningInOAuth2AuthorizedClient(
       OAuth2AuthorizedClient oAuth2AuthorizedClient,
-      Authentication oAuth2Principal
+      OAuth2AuthenticationToken oAuth2Principal
   ) {
-
-    log.info("oAuth2AuthorizedClient: {}", oAuth2AuthorizedClient.toString());
-    log.info("oAuth2Principal: {}", oAuth2Principal.toString());
-
     linkedOAuth2AccountRepository.save(
         linkedOAuth2AccountMapper.updateLinkedOAuth2Account(
             linkedOAuth2AccountRepository.findById(
@@ -456,8 +455,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         oAuth2AuthorizedClient.getClientRegistration().getRegistrationId(),
                         oAuth2AuthorizedClient.getPrincipalName()))
                 .orElseThrow(() -> new OAuth2SavedRequestAuthenticationException(AuthenticationErrorDictionary.OAUTH2_AUTHENTICATION_NOT_FOUND_001)),
-            oAuth2AuthorizedClient
-        )
+            oAuth2AuthorizedClient,
+            extractOAuth2UserForDisplayName(oAuth2AuthorizedClient, oAuth2Principal.getPrincipal()))
     );
   }
 
@@ -465,7 +464,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   @Transactional
   public void linkOAuth2AuthorizedClient(
       OAuth2AuthorizedClient oAuth2AuthorizedClient,
-      Authentication oAuth2Principal,
+      OAuth2AuthenticationToken oAuth2Principal,
       UserJwt principalJwt
   ) {
 
@@ -479,7 +478,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     if (linkedOAuth2AccountOptional.isEmpty()) {
       User existingUser = userRepository.findByIdFetchLinkedOAuth2Accounts(Long.parseLong(principalJwt.getSub()))
           .orElseThrow(() -> new OAuth2SavedRequestAuthenticationException(AuthenticationErrorDictionary.INVALID_JWT_ACCESS_TOKEN_004));
-      LinkedOAuth2Account linkedOAuth2Account = linkedOAuth2AccountMapper.toLinkedOAuth2Account(oAuth2AuthorizedClient);
+      LinkedOAuth2Account linkedOAuth2Account = linkedOAuth2AccountMapper.toLinkedOAuth2Account(
+          oAuth2AuthorizedClient,
+          extractOAuth2UserForDisplayName(oAuth2AuthorizedClient, oAuth2Principal.getPrincipal())
+      );
       linkedOAuth2Account.setUser(existingUser);
       existingUser.getLinkedOAuth2Accounts().add(linkedOAuth2AccountRepository.save(linkedOAuth2Account));
       userRepository.save(existingUser);
@@ -494,8 +496,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         linkedOAuth2AccountRepository.save(
             linkedOAuth2AccountMapper.updateLinkedOAuth2Account(
                 existingLinkedOAuth2Account,
-                oAuth2AuthorizedClient
-            )
+                oAuth2AuthorizedClient,
+                extractOAuth2UserForDisplayName(oAuth2AuthorizedClient, oAuth2Principal.getPrincipal()))
         );
       }
     }
@@ -506,11 +508,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   @Transactional
   public void saveOAuth2AuthorizedClient(
       OAuth2AuthorizedClient oAuth2AuthorizedClient,
-      Authentication oAuth2Principal
+      OAuth2AuthenticationToken oAuth2Principal
   ) {
-
-    log.info("oAuth2AuthorizedClient: {}", oAuth2AuthorizedClient.toString());
-    log.info("oAuth2Principal: {}", oAuth2Principal.toString());
 
     Optional<LinkedOAuth2Account> linkedOAuth2AccountOptional = linkedOAuth2AccountRepository.findByIdFetchUser(
         new LinkedOAuth2AccountId(
@@ -520,14 +519,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     );
 
     if (linkedOAuth2AccountOptional.isEmpty()) {
-      linkedOAuth2AccountRepository.save(linkedOAuth2AccountMapper.toLinkedOAuth2Account(oAuth2AuthorizedClient));
+      linkedOAuth2AccountRepository.save(
+          linkedOAuth2AccountMapper.toLinkedOAuth2Account(
+              oAuth2AuthorizedClient,
+              extractOAuth2UserForDisplayName(oAuth2AuthorizedClient, oAuth2Principal.getPrincipal()))
+      );
 
     } else {
       linkedOAuth2AccountRepository.save(
           linkedOAuth2AccountMapper.updateLinkedOAuth2Account(
               linkedOAuth2AccountOptional.get(),
-              oAuth2AuthorizedClient
-          )
+              oAuth2AuthorizedClient,
+              extractOAuth2UserForDisplayName(oAuth2AuthorizedClient, oAuth2Principal.getPrincipal()))
       );
     }
 
@@ -601,6 +604,27 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     return buildJwtTokens(authenticationMapper.toUserPrincipal(linkedOAuth2Account.getUser()));
 
+  }
+
+  private String extractOAuth2UserForDisplayName(
+      OAuth2AuthorizedClient oAuth2AuthorizedClient,
+      OAuth2User oAuth2User
+  ) {
+    if (oAuth2AuthorizedClient.getClientRegistration().getRegistrationId().equalsIgnoreCase(OAuth2AuthenticationConfigs.GITHUB_REGISTRATION_ID)) {
+      Object displayName = oAuth2User.getAttribute("login");
+      if (displayName instanceof String && StringUtils.hasText((String) displayName)) {
+        return (String) displayName;
+      } else {
+        return null;
+      }
+    } else {
+      Object displayName = oAuth2User.getAttribute("email");
+      if (displayName instanceof String && StringUtils.hasText((String) displayName)) {
+        return (String) displayName;
+      } else {
+        return null;
+      }
+    }
   }
 
   // https://docs.github.com/en/rest/apps/oauth-applications?apiVersion=2022-11-28#delete-an-app-authorization
