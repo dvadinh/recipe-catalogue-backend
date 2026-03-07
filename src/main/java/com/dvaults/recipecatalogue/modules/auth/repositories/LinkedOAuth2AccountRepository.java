@@ -21,7 +21,7 @@ public interface LinkedOAuth2AccountRepository extends JpaRepository<LinkedOAuth
       "FROM linked_oauth2_accounts loa " +
       "LEFT JOIN FETCH loa.user " +
       "WHERE loa.user.id = :userId " +
-      "AND loa.id.clientRegistrationId = :clientRegistrationId "
+          "AND loa.id.clientRegistrationId = :clientRegistrationId "
   )
   Optional<LinkedOAuth2Account> findByUserIdAndClientRegistrationIdFetchUser(long userId, String clientRegistrationId);
 }

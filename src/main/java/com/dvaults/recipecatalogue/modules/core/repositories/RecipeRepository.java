@@ -18,14 +18,15 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
   )
   Optional<Recipe> findByIdFetchOwnerAndSections(long id);
 
-  @Query("SELECT r " +
+  @Query("SELECT DISTINCT r " +
       "FROM recipes r " +
       "LEFT JOIN FETCH r.owner o " +
       "LEFT JOIN FETCH r.sections s " +
       "LEFT JOIN r.beneficiaries b " +
-      "WHERE r.accessLevel = 'PUBLIC'" +
-      "OR o.id = :userId " +
-      "OR b.user.id = :userId "
+      "LEFT JOIN b.user u " +
+      "WHERE r.accessLevel = 'PUBLIC' " +
+          "OR o.id = :userId " +
+          "OR u.id = :userId "
   )
   List<Recipe> findAllAccessibleByUserIdFetchOwnerAndSections(long userId);
 
@@ -42,7 +43,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
   )
   Optional<Recipe> findByIdFetchBeneficiaries(long id);
 
-  @Query("SELECT r " +
+  @Query("SELECT DISTINCT r " +
       "FROM recipes r " +
       "LEFT JOIN FETCH r.owner o " +
       "LEFT JOIN FETCH r.sections s " +
