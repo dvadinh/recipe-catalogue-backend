@@ -147,7 +147,7 @@ public class AuthenticationController {
   }
 
   @DeleteMapping(path = "/auth/oauth2/unlink/{clientRegistrationId}")
-  public Callable<ResponseEntity<Void>> oAuth2Unlink(
+  public Callable<ResponseEntity<Void>> unlinkOAuth2Account(
       HttpServletRequest request,
       HttpServletResponse response,
       @AuthenticationPrincipal UserPrincipal principal,

@@ -3,7 +3,6 @@ JWT_PRIVATE_KEY_DESTINATION := $(DESTINATION_DIRECTORY)/jwt-private-key.pem
 JWT_PUBLIC_KEY_DESTINATION  := $(DESTINATION_DIRECTORY)/jwt-public-key.pem
 
 JAR_OUTPUT_DIRECTORY := build/libs
-APP_NAME := recipe-catalogue
 DEPLOY_DESTINATION := /opt/recipe-catalogue
 JAR_DESTINATION := $(DEPLOY_DESTINATION)/app.jar
 SERVICE_NAME := recipe-catalogue
@@ -121,7 +120,7 @@ create-staging-service:
 		'User=ubuntu' \
 		'WorkingDirectory=$(DEPLOY_DESTINATION)' \
 		'Environment="SPRING_PROFILES_ACTIVE=staging"' \
-		'Environment="JAVA_TOOL_OPTIONS=-Xms256m -Xmx512m"' \
+		'Environment="JAVA_TOOL_OPTIONS=-Xms256m -Xmx1024m"' \
 		'ExecStart=/usr/bin/java -jar $(JAR_DESTINATION)' \
 		'Restart=always' \
 		'RestartSec=5' \
@@ -144,7 +143,7 @@ create-prod-service:
 		'User=ubuntu' \
 		'WorkingDirectory=$(DEPLOY_DESTINATION)' \
 		'Environment="SPRING_PROFILES_ACTIVE=prod"' \
-		'Environment="JAVA_TOOL_OPTIONS=-Xms256m -Xmx512m"' \
+		'Environment="JAVA_TOOL_OPTIONS=-Xms256m -Xmx1024m"' \
 		'ExecStart=/usr/bin/java -jar $(JAR_DESTINATION)' \
 		'Restart=always' \
 		'RestartSec=5' \
