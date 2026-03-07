@@ -121,8 +121,8 @@ create-staging-service:
 		'User=ubuntu' \
 		'WorkingDirectory=$(DEPLOY_DESTINATION)' \
 		'Environment="SPRING_PROFILES_ACTIVE=staging"' \
-		'Environment="JAVA_OPTS=-Xms256m -Xmx512m"' \
-		'ExecStart=/usr/bin/java $JAVA_OPTS -jar $(JAR_DESTINATION)' \
+		'Environment="JAVA_TOOL_OPTIONS=-Xms256m -Xmx512m"' \
+		'ExecStart=/usr/bin/java -jar $(JAR_DESTINATION)' \
 		'Restart=always' \
 		'RestartSec=5' \
 		'' \
@@ -144,8 +144,8 @@ create-prod-service:
 		'User=ubuntu' \
 		'WorkingDirectory=$(DEPLOY_DESTINATION)' \
 		'Environment="SPRING_PROFILES_ACTIVE=prod"' \
-		'Environment="JAVA_OPTS=-Xms256m -Xmx512m"' \
-		'ExecStart=/usr/bin/java $JAVA_OPTS -jar $(JAR_DESTINATION)' \
+		'Environment="JAVA_TOOL_OPTIONS=-Xms256m -Xmx512m"' \
+		'ExecStart=/usr/bin/java -jar $(JAR_DESTINATION)' \
 		'Restart=always' \
 		'RestartSec=5' \
 		'' \
@@ -155,6 +155,6 @@ create-prod-service:
 	@echo "Created $(PROD_SERVICE_DESTINATION)"
 	@sudo systemctl daemon-reload
 
-deploy-staging: build-jar deploy-jar restart-staging
+deploy-staging: build-jar deploy-jar create-staging-service restart-staging
 
-deploy-prod: build-jar deploy-jar restart-prod
+deploy-prod: build-jar deploy-jar create-prod-service restart-prod
