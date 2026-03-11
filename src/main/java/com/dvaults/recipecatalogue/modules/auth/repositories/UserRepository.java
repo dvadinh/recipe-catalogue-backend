@@ -34,6 +34,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
       "FROM users u " +
       "WHERE u.id IN :ids "
   )
-  List<User> findAllByIdsIn(List<Long> ids);
+  List<User> findAllByIdIn(List<Long> ids);
 
 }

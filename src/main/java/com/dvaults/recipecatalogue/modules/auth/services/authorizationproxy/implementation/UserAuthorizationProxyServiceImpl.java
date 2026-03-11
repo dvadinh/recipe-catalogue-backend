@@ -10,13 +10,13 @@ import com.dvaults.recipecatalogue.modules.auth.errors.UserErrorDictionary;
 import com.dvaults.recipecatalogue.modules.auth.mappers.UserMapper;
 import com.dvaults.recipecatalogue.modules.auth.models.User;
 import com.dvaults.recipecatalogue.modules.auth.repositories.UserRepository;
-import com.dvaults.recipecatalogue.modules.auth.services.api.specification.AuthenticationService;
 import com.dvaults.recipecatalogue.modules.auth.services.api.specification.UserService;
 import com.dvaults.recipecatalogue.modules.auth.services.authorizationproxy.specification.UserAuthorizationProxyService;
 import com.dvaults.recipecatalogue.security.authentication.tokens.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -31,10 +31,7 @@ public class UserAuthorizationProxyServiceImpl implements UserAuthorizationProxy
 
   @Override
   public List<? extends UserResponse> findAll(boolean isSummaryResponse) {
-    return userService.findAllByUsers(
-        userRepository.findAll(),
-        isSummaryResponse
-    );
+    return userService.findAll(isSummaryResponse);
   }
 
   @Override
@@ -75,7 +72,11 @@ public class UserAuthorizationProxyServiceImpl implements UserAuthorizationProxy
 
   @Override
   public List<String> deleteAll(DeleteUserRequest deleteUserRequest) {
-    return userService.deleteAllByUsers(userRepository.findAllByIdsIn(deleteUserRequest.userIds()));
+    return userService.deleteAllByUsers(
+        userRepository.findAllByIdIn(
+            userMapper.screenDeleteUserRequest(deleteUserRequest).userIds()
+        )
+    );
   }
 
 }

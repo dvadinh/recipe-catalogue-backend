@@ -30,6 +30,9 @@ flyway:
   target-version:
 
 jwt:
+  http-only: true
+  same-site: Lax
+  secure: false
   cookie-domain:
   access-token-time-to-live: 86400
   refresh-token-time-to-live: 604800

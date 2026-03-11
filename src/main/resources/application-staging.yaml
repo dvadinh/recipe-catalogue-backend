@@ -35,6 +35,9 @@ flyway:
     admin_password: ${POSTGRES_ADMIN_PASSWORD}
 
 jwt:
+  http-only: true
+  same-site: Lax
+  secure: true
   cookie-domain: staging.recipecatalogue.com
   access-token-time-to-live: 900
   refresh-token-time-to-live: 604800

@@ -2,6 +2,7 @@ package com.dvaults.recipecatalogue.security.authentication.rest;
 
 import com.dvaults.recipecatalogue.common.jwt.UserJwt;
 import com.dvaults.recipecatalogue.configs.JwtConfigs;
+import com.dvaults.recipecatalogue.configs.SecurityConfigs;
 import com.dvaults.recipecatalogue.modules.auth.errors.AuthenticationErrorDictionary;
 import com.dvaults.recipecatalogue.modules.auth.services.api.specification.AuthenticationService;
 import com.dvaults.recipecatalogue.security.authentication.errors.exceptions.RestAuthenticationException;
@@ -45,7 +46,7 @@ public class JwtCookieAuthenticationFilter extends OncePerRequestFilter {
   ) throws ServletException, IOException {
 
     String requestUri = request.getRequestURI();
-    if ("/auth/sign-out".equals(requestUri)) {
+    if (SecurityConfigs.SIGN_OUT_URI.equals(requestUri)) {
       filterChain.doFilter(request, response);
       return;
     }

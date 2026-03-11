@@ -34,7 +34,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
       "FROM recipes r " +
       "WHERE r.id IN :ids "
   )
-  List<Recipe> findAllByIdsIn(List<Long> ids);
+  List<Recipe> findAllByIdIn(List<Long> ids);
 
   @Query("SELECT r " +
       "FROM recipes r " +

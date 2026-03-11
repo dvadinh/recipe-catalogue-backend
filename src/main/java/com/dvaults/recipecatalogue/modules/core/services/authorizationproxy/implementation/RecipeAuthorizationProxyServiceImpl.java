@@ -205,7 +205,7 @@ public class RecipeAuthorizationProxyServiceImpl implements RecipeAuthorizationP
       DeleteRecipeRequest deleteRecipeRequest
   ) {
     recipeService.deleteAllByRecipes(
-        recipeRepository.findAllByIdsIn(deleteRecipeRequest.recipeIds()),
+        recipeRepository.findAllByIdIn(deleteRecipeRequest.recipeIds()),
         principal
     );
   }

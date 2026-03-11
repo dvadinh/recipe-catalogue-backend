@@ -36,6 +36,7 @@ import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -78,12 +79,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   private final AuthenticationMapper authenticationMapper;
   private final LinkedOAuth2AccountMapper linkedOAuth2AccountMapper;
 
-  private final Environment environment;
   private final PasswordEncoder passwordEncoder;
   private final JwtConfigs jwtConfigs;
   private final StringRedisTemplate redisTemplate;
   private final RestClient restClient;
   private final ClientRegistrationRepository clientRegistrationRepository;
+
+  @Value("${jwt.http-only}")
+  private boolean httpOnly;
+
+  @Value("${jwt.lax}")
+  private String lax;
+
+  @Value("${jwt.secure}")
+  private boolean secure;
 
   @Override
   public UserDetailsResponse findUserByPrincipal(@Nullable UserPrincipal principal) {
@@ -250,14 +259,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     userRepository.save(user);
 
-    JwtDecision jwtDecision;
-    if (usernameMutated) {
-      jwtDecision = JwtDecision.TRIGGER_RESET;
+    if (passwordMutated) {
+      return JwtDecision.TRIGGER_FORCE_REAUTHENTICATION;
     } else {
-      jwtDecision = JwtDecision.TRIGGER_FORCE_REAUTHENTICATION;
+      return JwtDecision.TRIGGER_RESET;
     }
-
-    return jwtDecision;
 
   }
 
@@ -804,16 +810,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   }
 
-  private boolean isLocalEnvironment() {
-    return environment.acceptsProfiles(Profiles.of("local"));
-  }
-
   private ResponseCookie buildCookie(ResponseCookie.ResponseCookieBuilder builder) {
 
-    builder.httpOnly(true)
-        .sameSite("Lax")
-        .secure(!isLocalEnvironment());
-    if (!isLocalEnvironment()) {
+    builder.httpOnly(httpOnly)
+        .sameSite(lax)
+        .secure(secure);
+    if (secure) {
       builder.domain(jwtConfigs.getCookieDomain());
     }
 

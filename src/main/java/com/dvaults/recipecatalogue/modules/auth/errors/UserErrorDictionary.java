@@ -15,14 +15,12 @@ public enum UserErrorDictionary implements ErrorDictionaryDescriptor {
   INVALID_USER_DETAILS_001(HttpStatus.BAD_REQUEST, "Invalid user creation details."),
   INVALID_USER_DETAILS_002(HttpStatus.BAD_REQUEST, "Invalid user update details."),
   INVALID_USER_DETAILS_003(HttpStatus.BAD_REQUEST, "Invalid user deletion details."),
-  INVALID_USERNAME_PASSWORD_DETAILS_001(HttpStatus.BAD_REQUEST, "Invalid username and/or password."),
 
-  USER_ACCESS_DENIED_001(HttpStatus.FORBIDDEN, "Only admins can access this resource."),
-  USER_ACCESS_DENIED_002(HttpStatus.FORBIDDEN, "Only admins and the owner can access this resource."),
-  USER_ACCESS_DENIED_003(HttpStatus.FORBIDDEN, "Only admins can disable users."),
-  USER_ACCESS_DENIED_004(HttpStatus.FORBIDDEN, "Only admins can update user's description."),
-  USER_ACCESS_DENIED_005(HttpStatus.FORBIDDEN, "Only admins can delete all users."),
-  USER_ACCESS_DENIED_006(HttpStatus.FORBIDDEN, "Users can only delete themselves."),
+  USER_ACCESS_DENIED_001(HttpStatus.FORBIDDEN, "Only admins can access all users' information."),
+  USER_ACCESS_DENIED_002(HttpStatus.FORBIDDEN, "Only admins and the user can access their information."),
+  USER_ACCESS_DENIED_003(HttpStatus.FORBIDDEN, "Only admins can update privileged user's information."),
+  USER_ACCESS_DENIED_004(HttpStatus.FORBIDDEN, "Only admins and the user can update their information."),
+  USER_ACCESS_DENIED_005(HttpStatus.FORBIDDEN, "Users can only delete themselves."),
 
   USER_DISPLAY_NAME_ALREADY_EXISTS_001(HttpStatus.CONFLICT, "Display name already exists."),
 

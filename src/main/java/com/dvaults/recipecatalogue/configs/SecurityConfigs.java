@@ -46,6 +46,9 @@ import java.util.stream.Stream;
 @EnableMethodSecurity
 public class SecurityConfigs {
 
+  public static final String WHO_AM_I_URI = "/auth/who-am-i";
+  public static final String SIGN_OUT_URI = "/auth/sign-out";
+
   @Bean
   @Order(1)
   public SecurityFilterChain basicAuthenticationFilterChain(
@@ -164,7 +167,7 @@ public class SecurityConfigs {
             new JwtCookieAuthenticationFilter(securityContextRepository, authenticationService),
             AuthorizationFilter.class)
         .authorizeHttpRequests(authorizeHttpRequestsCustomizer ->
-            authorizeHttpRequestsCustomizer.requestMatchers("/auth/sign-out", JwtConfigs.REFRESH_TOKEN_URI).permitAll()
+            authorizeHttpRequestsCustomizer.requestMatchers(SIGN_OUT_URI, JwtConfigs.REFRESH_TOKEN_URI).permitAll()
                 .anyRequest().authenticated());
 
     return http.build();

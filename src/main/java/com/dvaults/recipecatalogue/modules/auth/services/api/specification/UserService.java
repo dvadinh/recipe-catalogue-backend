@@ -11,22 +11,19 @@ import java.util.List;
 
 public interface UserService {
 
-  @PreAuthorize("@userAuthorizationService.preAuthorizeFindAllByUsers(principal)")
-  List<? extends UserResponse> findAllByUsers(
-      List<User> users,
-      boolean isSummaryResponse
-  );
+  @PreAuthorize("@userAuthorizationService.preAuthorizeFindAll(principal)")
+  List<? extends UserResponse> findAll(boolean isSummaryResponse);
 
   @PreAuthorize("@userAuthorizationService.preAuthorizeFindByUser(principal, #user)")
   UserDetailsResponse findByUser(User user);
-
-  @PreAuthorize("@userAuthorizationService.preAuthorizeDeleteAllByUsers(principal, #users)")
-  List<String> deleteAllByUsers(List<User> users);
 
   @PreAuthorize("@userAuthorizationService.preAuthorizeUpdateByUser(principal, #user, #screenedRequest)")
   Pair<UserDetailsResponse, JwtDecision> updateByUser(
       User user,
       PatchUserRequest screenedRequest
   );
+
+  @PreAuthorize("@userAuthorizationService.preAuthorizeDeleteAllByUsers(principal, #users)")
+  List<String> deleteAllByUsers(List<User> users);
 
 }

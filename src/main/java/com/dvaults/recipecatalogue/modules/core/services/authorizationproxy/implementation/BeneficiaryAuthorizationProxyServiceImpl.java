@@ -64,7 +64,7 @@ public class BeneficiaryAuthorizationProxyServiceImpl implements BeneficiaryAuth
 
     return beneficiaryService.createByRecipeAndUsers(
         recipe,
-        userRepository.findAllByIdsIn(
+        userRepository.findAllByIdIn(
             beneficiaryMapper.screenPostBeneficiaryRequest(postBeneficiaryRequest)
                 .userIds())
     );

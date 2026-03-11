@@ -13,7 +13,7 @@ import java.util.List;
 @Service("userAuthorizationService")
 public class UserAuthorizationService {
 
-  public boolean preAuthorizeFindAllByUsers(UserPrincipal principal) {
+  public boolean preAuthorizeFindAll(UserPrincipal principal) {
 
     if (principal.getAuthority() == Authority.ADMIN) return true;
 
@@ -34,6 +34,32 @@ public class UserAuthorizationService {
 
   }
 
+  public boolean preAuthorizeUpdateByUser(
+      UserPrincipal principal,
+      User user,
+      PatchUserRequest screenedRequest
+  ) {
+
+    if (principal.getAuthority() == Authority.ADMIN) return true;
+
+    if (screenedRequest.typeOperation() != null) {
+      throw new AuthorizationException(UserErrorDictionary.USER_ACCESS_DENIED_003);
+    }
+
+    if (screenedRequest.enabledOperation() != null) {
+      throw new AuthorizationException(UserErrorDictionary.USER_ACCESS_DENIED_003);
+    }
+
+    if (screenedRequest.descriptionOperation() != null) {
+      throw new AuthorizationException(UserErrorDictionary.USER_ACCESS_DENIED_003);
+    }
+
+    if (principal.getId().equals(user.getId())) return true;
+
+    throw new AuthorizationException(UserErrorDictionary.USER_ACCESS_DENIED_005);
+
+  }
+
   public boolean preAuthorizeDeleteAllByUsers(
       UserPrincipal principal,
       List<User> users
@@ -47,29 +73,8 @@ public class UserAuthorizationService {
       return true;
     }
 
-    throw new AuthorizationException(UserErrorDictionary.USER_ACCESS_DENIED_002);
+    throw new AuthorizationException(UserErrorDictionary.USER_ACCESS_DENIED_005);
 
   }
-
-  public boolean preAuthorizeUpdateByUser(
-      UserPrincipal principal,
-      User user,
-      PatchUserRequest screenedRequest
-  ) {
-
-    if (principal.getAuthority() == Authority.ADMIN) return true;
-
-    if (screenedRequest.enabledOperation() != null)
-      throw new AuthorizationException(UserErrorDictionary.USER_ACCESS_DENIED_003);
-
-    if (screenedRequest.descriptionOperation() != null)
-      throw new AuthorizationException(UserErrorDictionary.USER_ACCESS_DENIED_004);
-
-    if (principal.getId().equals(user.getId())) return true;
-
-    throw new AuthorizationException(UserErrorDictionary.USER_ACCESS_DENIED_002);
-
-  }
-
 
 }

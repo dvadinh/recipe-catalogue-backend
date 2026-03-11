@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
@@ -27,32 +26,17 @@ public class UserServiceImpl implements UserService {
   private final UserMapper userMapper;
 
   @Override
-  public List<? extends UserResponse> findAllByUsers(
-      List<User> users,
-      boolean isSummaryResponse
-  ) {
+  public List<? extends UserResponse> findAll(boolean isSummaryResponse) {
     if (isSummaryResponse) {
-      return userMapper.toUserSummaryResponseList(users);
+      return userMapper.toUserSummaryResponseList(userRepository.findAll());
     } else {
-     return userMapper.toUserDetailsResponseList(users);
+     return userMapper.toUserDetailsResponseList(userRepository.findAll());
     }
   }
 
   @Override
   public UserDetailsResponse findByUser(User user) {
     return userMapper.toUserDetailsResponse(user);
-  }
-
-  @Override
-  @Transactional
-  public List<String> deleteAllByUsers(List<User> users) {
-
-    userRepository.deleteAll(users);
-
-    return users.stream()
-        .map(user -> String.valueOf(user.getId()))
-        .toList();
-
   }
 
   @Override
@@ -101,6 +85,18 @@ public class UserServiceImpl implements UserService {
                 : user),
         mutated ? JwtDecision.TRIGGER_RESET : JwtDecision.NONE
     );
+
+  }
+
+  @Override
+  @Transactional
+  public List<String> deleteAllByUsers(List<User> users) {
+
+    userRepository.deleteAll(users);
+
+    return users.stream()
+        .map(user -> String.valueOf(user.getId()))
+        .toList();
 
   }
 

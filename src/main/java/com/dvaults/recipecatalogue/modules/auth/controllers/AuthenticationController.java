@@ -3,6 +3,7 @@ package com.dvaults.recipecatalogue.modules.auth.controllers;
 import com.dvaults.recipecatalogue.common.dtos.JwtDecision;
 import com.dvaults.recipecatalogue.configs.BasicAuthenticationConfigs;
 import com.dvaults.recipecatalogue.configs.JwtConfigs;
+import com.dvaults.recipecatalogue.configs.SecurityConfigs;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PatchUsernamePasswordRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.requests.PostUserRequest;
 import com.dvaults.recipecatalogue.modules.auth.dtos.user.responses.UserDetailsResponse;
@@ -39,7 +40,7 @@ public class AuthenticationController {
 
   private final AuthenticationAuthorizationProxyService authenticationAuthorizationProxyService;
 
-  @GetMapping(path = "/auth/who-am-i")
+  @GetMapping(path = SecurityConfigs.WHO_AM_I_URI)
   public Callable<ResponseEntity<UserDetailsResponse>> whoAmI(
       HttpServletRequest request,
       HttpServletResponse response,
@@ -70,7 +71,7 @@ public class AuthenticationController {
     };
   }
 
-  @PostMapping(path = "/auth/sign-out")
+  @PostMapping(path = SecurityConfigs.SIGN_OUT_URI)
   public Callable<ResponseEntity<Void>> signOut(
       HttpServletRequest request,
       HttpServletResponse response
