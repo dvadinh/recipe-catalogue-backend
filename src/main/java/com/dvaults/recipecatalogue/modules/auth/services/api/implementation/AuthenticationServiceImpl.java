@@ -88,8 +88,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   @Value("${jwt.http-only}")
   private boolean httpOnly;
 
-  @Value("${jwt.lax}")
-  private String lax;
+  @Value("${jwt.same-site}")
+  private String sameSite;
 
   @Value("${jwt.secure}")
   private boolean secure;
@@ -813,7 +813,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   private ResponseCookie buildCookie(ResponseCookie.ResponseCookieBuilder builder) {
 
     builder.httpOnly(httpOnly)
-        .sameSite(lax)
+        .sameSite(sameSite)
         .secure(secure);
     if (secure) {
       builder.domain(jwtConfigs.getCookieDomain());
